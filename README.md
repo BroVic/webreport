@@ -2,7 +2,7 @@
 webreport
 =========
 
-This package is currently under development. In the meantime...
+This package is currently under development. In the meantime, play around with this inside R
 
 ``` r
 if (!requireNamespace("fun", quietly = TRUE)) install.packages("fun")
