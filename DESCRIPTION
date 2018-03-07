@@ -1,0 +1,14 @@
+Package: webreport
+Title: Creation of Reports on social media and website related information
+Version: 0.0.0.9001
+Authors@R: person("Victor", "Ordu", email = "victorordu@outlook.com",
+    role = c("aut", "cre"))
+Description: Build reports from social media and website data.
+Depends: 
+    R (>= 3.4.3),
+    rmarkdown (>= 1.7)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: testthat
