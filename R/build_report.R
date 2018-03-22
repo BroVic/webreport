@@ -1,30 +1,67 @@
-#' build_report
+#' Build a report from a source file
+#'
+#' @description Creates a report from an R Markdown template file that is
+#' found in the package (precisely in \code{inst/rmarkdow}) and utilises a
+#' data previously stored in a local database.
 #'
 #' @param file A path to the RMarkdown file (required).
+#' @param data.source A database file containing web data
 #' @param outfile The path of the built document. Defaults to the working
-#'     directory.
-#' @param type The kind of output document; either a Microsoft Word (.docx)
-#'     or Acrobat Portable Document Format (.pdf) document. Defaults to the
-#'     former.
+#' directory.
 #' @param ... Arguments passed on to \code{rmarkdown::render()}.
+#'
 #' @return This function has no return value. The result of the operation is
-#'     a built document in the specified file format.
-#' @import rmarkdown
+#' a built document in the specified file format.
+#'
+#' @import RSQLite
+#' @importFrom rmarkdown render
+#' @importFrom utils choose.files
+#'
 #' @export
-build_report <- function(file, outfile = NULL,
-                         type = c("word_document", "pdf_document"), ...)
-{
-  stopifnot(is.character(file))
-  typ <- match.arg(type)
-  if (identical(match(typ, type), 1L)) {
-    ext <- ".docx"
-  }
-  else if (identical(match(typ, type), 2L)) {
-    ext <- ".pdf"
+build_webreport <- function(file = NULL, data.source = NULL, outfile = NULL)
+{    ## TODO: Add argument for destination directory!
+  ## Optionally use dialog for file selection
+  if (identical(.Platform$OS.type, 'windows') & interactive()) {
+    fileOpts <- list(
+      RMarkdown = matrix(c("R Markdown files (*.Rmd)", "*.Rmd"),
+                         ncol = 2L,  dim = list("Rmd")),
+      SQLite = matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
+                      ncol = 2L, dim = list("SQLite")))
+    if (is.null(file)) {
+      file <- choose.files(caption = "Select an R Markdown file",
+                           multi = FALSE, filters = fileOpts$RMarkdown)
+    }
+    if (is.null(data.source)) {
+      data.source <- choose.files(caption = "Select a database",
+                                  multi = FALSE, filters = fileOpts$SQLite)
+    }
+  } else {
+    if (!endsWith(tolower(file), '.rmd')) {
+      stop("'file' should be an R Markdown file with extention .Rmd.")
+    }
+    if (!endsWith(tolower(data.source), '.db') ||
+        !endsWith(tolower(data.source), '.sqlite')) {
+      stop("'data.source' should be an SQLite database file.")
+    }
   }
 
-  if (is.null(outfile))
-    outfile <- tempfile("report_", tmpdir = ".", fileext = ext)
-  rmarkdown::render(file, output_format = typ,
-                    output_file = outfile, output_dir = ".", quiet = TRUE)
+  con <- dbConnect(SQLite(), data.source)
+  if (!dbIsValid(con))
+    stop("Connection to database not established.")
+  tbls <- dbListTables(con)
+  dfs <- sapply(tbls, USE.NAMES = TRUE, function(table) {
+    dbReadTable(con, table)
+    })
+  dbDisconnect(con)
+  if (dbIsValid(con))
+    stop("Database could not be disconnected.")
+  names(dfs) <- gsub('^nesreanigeria_', '', names(dfs))
+  if (is.null(outfile)) {
+    outfile <-
+    tempfile(paste0("report_", format(Sys.time(), '%Y%m%d_%H%M%S')),
+             tmpdir = ".", fileext = ".docx")
+  }
+  rmarkdown::render(input = file, output_format = "word_document",
+                    output_file = outfile, output_dir = ".",
+                    params = list(data = dfs))
 }
