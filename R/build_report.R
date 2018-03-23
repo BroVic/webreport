@@ -24,9 +24,9 @@ build_webreport <- function(file = NULL, data.source = NULL, outfile = NULL)
   if (identical(.Platform$OS.type, 'windows') & interactive()) {
     fileOpts <- list(
       RMarkdown = matrix(c("R Markdown files (*.Rmd)", "*.Rmd"),
-                         ncol = 2L,  dim = list("Rmd")),
+                         ncol = 2L,  dimnames = list("Rmd")),
       SQLite = matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
-                      ncol = 2L, dim = list("SQLite")))
+                      ncol = 2L, dimnames = list("SQLite")))
     if (is.null(file)) {
       file <- choose.files(caption = "Select an R Markdown file",
                            multi = FALSE, filters = fileOpts$RMarkdown)
