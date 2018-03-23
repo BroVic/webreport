@@ -14,8 +14,6 @@ build_webreport(file = NULL, data.source = NULL, outfile = NULL)
 \item{outfile}{The path of the built document. Defaults to the working
 directory.}
 
-\item{gui}{Logical; whether to select files with dialog.}
-
 \item{...}{Arguments passed on to \code{rmarkdown::render()}.}
 }
 \value{
