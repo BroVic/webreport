@@ -12,8 +12,7 @@ test_that("Report can be built", {
   #              "file 'fake_path' does not exist")
 })
 
-data("pres_debate_raw2012")
-polList <- compute_emotional_valence(pres_debate_raw2012$dialogue)
+polList <- compute_emotional_valence(qdap::pres_debate_raw2012$dialogue)
 
 test_that("Polarity list is generated", {
   expect_is(polList, 'list')
@@ -34,9 +33,12 @@ test_that("Word table is created", {
 })
 
 test_that("Social media network can be selected", {
+  expect_error(choose_platform())
+  expect_error(choose_platform(9))
+  expect_error(choose_platform(TRUE))
   expect_equal(choose_platform('Twitter'), 1L)
   expect_equal(choose_platform('Facebook'), 2L)
-  expect_error(choose_platform('FakeNewtork'), 'not a supported social media')
+  expect_error(choose_platform('otherNetwork'), 'not a supported social media')
 })
 
 test_that("Tag cloud is rendered properly", {
