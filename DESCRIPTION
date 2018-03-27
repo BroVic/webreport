@@ -1,6 +1,6 @@
 Package: webreport
 Title: Creation of Reports on social media and website related information
-Version: 0.0.0.9002
+Version: 0.0.0.9003
 Authors@R: person("Victor", "Ordu", email = "victorordu@outlook.com",
     role = c("aut", "cre"))
 Description: Build reports from social media and website data.
