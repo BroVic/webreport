@@ -2,16 +2,17 @@
 % Please edit documentation in R/global-function-prototypes.R
 \name{plain_dens_plot}
 \alias{plain_dens_plot}
-\title{plain_dens_plot}
+\title{Draw a density plot of social data}
 \usage{
 plain_dens_plot(data, platform)
 }
 \arguments{
-\item{data}{An object of class 'data.frame'}
+\item{data}{An object of class \code{data.frame}}
 
 \item{platform}{A character vector of length 1 with the name of the social
 media site}
 }
 \description{
-Plots a simple density plot for the data
+Plots a simple density plot for key variables in social media
+data.
 }

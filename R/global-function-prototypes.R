@@ -1,12 +1,6 @@
-#' Compute the emotional valence in a given text
-#'
-#' @description Calclates the polarity for each text field
-#' @param text.var A character vector or an object coercible to one.
-#'
-#' @note This operation ought to generate series of warnings because
-#' of multiple punctuations that expectedly occur in the text, but
-#' this has been suppressed.
-#'
+# Calclates the polarity for each text field
+## This operation ought to generate series of warnings because of multiple
+## punctuations that expectedly occur in the text, but this has been suppressed
 #' @importFrom qdap polarity
 compute_emotional_valence <- function(text.var) {
   suppressWarnings(
@@ -17,39 +11,11 @@ compute_emotional_valence <- function(text.var) {
     })
   )
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' Create a word table
-#'
-#' @description Makes a table of words on eiher side of the emotional spectrum i.e.
-#' positive/negative
-#'
-#' @param pol.list A list of polarities
-#' @importFrom tm stripWhitespace
-make_word_table <- function(pol.list) {
-  wordsTab <- sapply(pol.list, function(p) {
-    words <-
-      c(positiveWords = paste(p$all$pos.words[[1]], collapse = ' '),
-        negativeWords = paste(p$all$neg.words[[1]], collapse = ' '))
-    gsub('-', '', words)
-  })
-  wordsTab <- apply(wordsTab, MARGIN = 1, FUN = paste, collapse = ' ')
-  wordsTab <- stripWhitespace(wordsTab)
-  wordsTab <- strsplit(wordsTab, ' ')
-  wordsTab <- sapply(wordsTab, table, simplify = FALSE)
-}
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
+
 #' visualise_pol_diff
 #'
 #' @description Displays the occurence of words on either side of the
@@ -60,6 +26,7 @@ make_word_table <- function(pol.list) {
 #' @importFrom graphics par
 #' @importFrom graphics dotchart
 #' @importFrom graphics mtext
+#' @export
 visualise_pol_diff <- function(pol.list) {
   pol.tab <- make_word_table(pol.list)
   oldpar <- par()
@@ -72,17 +39,22 @@ visualise_pol_diff <- function(pol.list) {
   )
   suppressWarnings(par(oldpar))
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' Generate a tag Cloud
 #'
 #' @description Generates a tag cloud
@@ -95,11 +67,13 @@ visualise_pol_diff <- function(pol.list) {
 #'
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom graphics layout
+#' @importFrom graphics par
 #' @importFrom graphics plot.new
 #' @importFrom graphics text
 #' @importFrom tm removeWords
 #' @importFrom tm TermDocumentMatrix
 #' @importFrom wordcloud comparison.cloud
+#' @export
 generate_wordcloud <- function(data, pol.list, site)
 {
   pol.tab <- make_word_table(pol.list)
@@ -139,26 +113,52 @@ generate_wordcloud <- function(data, pol.list, site)
                        vfont = c("sans serif", "plain")))
   }
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' make_corpus
-#'
-#' @description Makes a volatile corpus and prepares text
-#'
-#' @param GText A column of text taken from the data
-#' @param stem Whether stemming will be carried out.
-#'
+
+
+# Makes a table of words on eiher side of the emotional spectrum i.e.
+# positive/negative
+#' @importFrom tm stripWhitespace
+make_word_table <- function(pol.list) {
+  wordsTab <- sapply(pol.list, function(p) {
+    words <-
+      c(positiveWords = paste(p$all$pos.words[[1]], collapse = ' '),
+        negativeWords = paste(p$all$neg.words[[1]], collapse = ' '))
+    gsub('-', '', words)
+  })
+  wordsTab <- apply(wordsTab, MARGIN = 1, FUN = paste, collapse = ' ')
+  wordsTab <- stripWhitespace(wordsTab)
+  wordsTab <- strsplit(wordsTab, ' ')
+  wordsTab <- sapply(wordsTab, table, simplify = FALSE)
+}
+
+
+
+
+
+
+
+
+
+# Selects the appropriate social media platform being analysed. Returns an
+# integer value, 1 for Twitter and 2 for Facebook, which is used internally
+# for indexing other relevant functions.
+choose_platform <- function(site)
+{
+  stopifnot(is.character(site))
+  if(identical(tolower(site), "twitter")) return(1)
+  else if (identical(tolower(site), "facebook")) return(2)
+  else stop("Argument 'site' is not a supported social media platform.")
+}
+
+
+
+
+
+
+
+# Makes a volatile corpus and prepares text
 #' @import tm
+#' @importFrom dplyr %>%
 make_corpus <- function(GText, stem = TRUE) {
   corp <- VCorpus(VectorSource(GText)) %>%
     tm_map(removePunctuation) %>%
@@ -171,17 +171,21 @@ make_corpus <- function(GText, stem = TRUE) {
   names(corp) <- names(GText)
   corp
 }
+
+
+
+
+
+
+
+
+
+#' Draw a density plot of social data
 #'
+#' @description Plots a simple density plot for key variables in social media
+#' data.
 #'
-#'
-#'
-#'
-#'
-#' plain_dens_plot
-#'
-#' @description Plots a simple density plot for the data
-#'
-#' @param data An object of class 'data.frame'
+#' @param data An object of class \code{data.frame}
 #' @param platform A character vector of length 1 with the name of the social
 #' media site
 #'
@@ -201,66 +205,24 @@ plain_dens_plot <- function(data, platform)
     xlab("Date")
   gg
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' Select a social media network
-#'
-#' @description Selects the appropriate social media platform being analysed
-#'
-#' @param site A character vector; a social media site (supported sites are
-#' Facebook and Twitter.
-#'
-#' @return Returns an integer value, 1 for Twitter and 2 for Facebook, which
-#' is used internally for indexing other relevant functions.
-#'
-#' @examples
-#' choose_platform("Facebook")
-choose_platform <- function(site)
-{
-  stopifnot(is.character(site))
-  if(identical(tolower(site), "twitter")) return(1)
-  else if (identical(tolower(site), "facebook")) return(2)
-  else stop("Argument 'site' is not a supported social media platform.")
-}
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' return_text
-#'
-#' @description Returns a message that matches a particular metric (used
-#' only inside the body text)
-#'
-#' @param df An object of class 'data.frame'
-#' @param metric A social media metric to be explored
-#'
-#' @export
+
+
+
+
+# Returns a message that matches a particular metric
+# (used only inside the body text)
+#' @importFrom dplyr select
 return_text <- function(df, metric) {
   column <- unlist(select(df, match(metric, colnames(df))))
   df$message[match(max(column), column)]
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' Remove Characters Not Readable by Humans
-#'
-#' @description Makes sure that text-based columns contain human readable
-#' characters only
-#'
-#' @param string A character vector of length 1
+
+
+
+
+
+# Removes UNICODE characters that are not readable to humans e.g. emojis
+## Note that this has only been tested on an English-based locale.
 #' @importFrom stringr str_trim
 remove_nonreadables <- function(string = NULL) {
   if (is.null(string))
