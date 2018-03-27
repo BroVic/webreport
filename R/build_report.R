@@ -18,30 +18,20 @@
 #' @importFrom utils choose.files
 #'
 #' @export
-build_webreport <- function(file = NULL, data.source = NULL, outfile = NULL)
+build_webreport <- function(data.source = NULL, outfile = NULL)
 {    ## TODO: Add argument for destination directory!
   ## Optionally use dialog for file selection
   if (identical(.Platform$OS.type, 'windows') & interactive()) {
-    fileOpts <- list(
-      RMarkdown = matrix(c("R Markdown files (*.Rmd)", "*.Rmd"),
-                         ncol = 2L,  dimnames = list("Rmd")),
-      SQLite = matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
-                      ncol = 2L, dimnames = list("SQLite")))
-    if (is.null(file)) {
-      file <- choose.files(caption = "Select an R Markdown file",
-                           multi = FALSE, filters = fileOpts$RMarkdown)
+    fileOpts <- matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
+                       ncol = 2L, dimnames = list("SQLite"))
     }
     if (is.null(data.source)) {
       data.source <- choose.files(caption = "Select a database",
                                   multi = FALSE, filters = fileOpts$SQLite)
-    }
-  } else {
-    if (!endsWith(tolower(file), '.rmd')) {
-      stop("'file' should be an R Markdown file with extention .Rmd.")
-    }
-    if (!endsWith(tolower(data.source), '.db') ||
-        !endsWith(tolower(data.source), '.sqlite')) {
-      stop("'data.source' should be an SQLite database file.")
+    } else {
+      if (!endsWith(tolower(data.source), '.db') ||
+          !endsWith(tolower(data.source), '.sqlite')) {
+        stop("'data.source' should be an SQLite database file.")
     }
   }
 
@@ -61,7 +51,9 @@ build_webreport <- function(file = NULL, data.source = NULL, outfile = NULL)
     tempfile(paste0("report_", format(Sys.time(), '%Y%m%d_%H%M%S')),
              tmpdir = ".", fileext = ".docx")
   }
-  rmarkdown::render(input = file, output_format = "word_document",
+  rmdSkl <- system.file("rmarkdown/templates/reports/skeleton/skeleton.Rmd",
+                        package = "webreport")
+  rmarkdown::render(input = rmdSkl, output_format = "word_document",
                     output_file = outfile, output_dir = ".",
                     params = list(data = dfs))
 }
