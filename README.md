@@ -2,10 +2,41 @@
 webreport
 =========
 
-This package is currently under development. In the meantime, play around with this inside R
+An R package for reporting on social media data
+
+Installation
+------------
+
+From the R console:
 
 ``` r
-if (!requireNamespace("fun", quietly = TRUE)) install.packages("fun")
-
-help(package = "fun")
+if (!requireNamespace("devtools")) install.packages("devtools")
+devtools::install_github("NESREA/webreport")
 ```
+
+Reporting
+---------
+
+To build a report in MS Word format:
+
+``` r
+build_webreport()
+```
+
+This will bring up a dialog box for selecting the appropriate data source.
+
+Alternatively, the user can provide the path as a function argument e.g.
+
+``` r
+build_webreport("mydatabase.db")
+```
+
+By default, a filename will be generated for the report. To supply a filename, pass a second argument to the function:
+
+``` r
+build_webreport("mydatabase.db", "Report1.docx")
+```
+
+The reporting period is for the immediate past week (7 days).
+
+Additional functionality is being developed.
