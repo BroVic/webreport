@@ -4,17 +4,15 @@
 \alias{build_webreport}
 \title{Build a report from a source file}
 \usage{
-build_webreport(file = NULL, data.source = NULL, outfile = NULL)
+build_webreport(data.source = NULL, outfile = NULL, ...)
 }
 \arguments{
-\item{file}{A path to the RMarkdown file (required).}
-
 \item{data.source}{A database file containing web data}
 
 \item{outfile}{The path of the built document. Defaults to the working
 directory.}
 
-\item{...}{Arguments passed on to \code{rmarkdown::render()}.}
+\item{...}{Additional arguments passed to \code{rmarkdown::render()}.}
 }
 \value{
 This function has no return value. The result of the operation is
@@ -24,4 +22,7 @@ a built document in the specified file format.
 Creates a report from an R Markdown template file that is
 found in the package (precisely in \code{inst/rmarkdow}) and utilises a
 data previously stored in a local database.
+}
+\seealso{
+\code{\link[rmarkdown]{render}}
 }

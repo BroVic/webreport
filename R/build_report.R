@@ -4,38 +4,42 @@
 #' found in the package (precisely in \code{inst/rmarkdow}) and utilises a
 #' data previously stored in a local database.
 #'
-#' @param file A path to the RMarkdown file (required).
 #' @param data.source A database file containing web data
 #' @param outfile The path of the built document. Defaults to the working
 #' directory.
-#' @param ... Arguments passed on to \code{rmarkdown::render()}.
+#' @param ... Additional arguments passed to \code{rmarkdown::render()}.
 #'
 #' @return This function has no return value. The result of the operation is
 #' a built document in the specified file format.
+#'
+#' @seealso \code{\link[rmarkdown]{render}}
 #'
 #' @import RSQLite
 #' @importFrom rmarkdown render
 #' @importFrom utils choose.files
 #'
 #' @export
-build_webreport <- function(data.source = NULL, outfile = NULL)
+build_webreport <- function(data.source = NULL, outfile = NULL, ...)
 {    ## TODO: Add argument for destination directory!
+
   ## Optionally use dialog for file selection
   if (identical(.Platform$OS.type, 'windows') & interactive()) {
     fileOpts <- matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
                        ncol = 2L, dimnames = list("SQLite"))
     }
-    if (is.null(data.source)) {
+
+  if (is.null(data.source)) {
       data.source <- choose.files(caption = "Select a database",
                                   multi = FALSE, filters = fileOpts$SQLite)
-    } else {
+  }
+  else {
       if (!endsWith(tolower(data.source), '.db') ||
           !endsWith(tolower(data.source), '.sqlite')) {
         stop("'data.source' should be an SQLite database file.")
     }
   }
-
   con <- dbConnect(SQLite(), data.source)
+
   if (!dbIsValid(con))
     stop("Connection to database not established.")
   tbls <- dbListTables(con)
@@ -43,9 +47,11 @@ build_webreport <- function(data.source = NULL, outfile = NULL)
     dbReadTable(con, table)
     })
   dbDisconnect(con)
+
   if (dbIsValid(con))
     stop("Database could not be disconnected.")
   names(dfs) <- gsub('^nesreanigeria_', '', names(dfs))
+
   if (is.null(outfile)) {
     outfile <-
     tempfile(paste0("report_", format(Sys.time(), '%Y%m%d_%H%M%S')),
