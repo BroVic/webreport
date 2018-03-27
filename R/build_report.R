@@ -26,17 +26,17 @@ build_webreport <- function(data.source = NULL, outfile = NULL, ...)
   if (identical(.Platform$OS.type, 'windows') & interactive()) {
     fileOpts <- matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
                        ncol = 2L, dimnames = list("SQLite"))
-    }
+  }
 
   if (is.null(data.source)) {
       data.source <- choose.files(caption = "Select a database",
-                                  multi = FALSE, filters = fileOpts$SQLite)
+                                  multi = FALSE, filters = fileOpts["SQLite", ])
   }
   else {
       if (!endsWith(tolower(data.source), '.db') ||
           !endsWith(tolower(data.source), '.sqlite')) {
         stop("'data.source' should be an SQLite database file.")
-    }
+      }
   }
   con <- dbConnect(SQLite(), data.source)
 
