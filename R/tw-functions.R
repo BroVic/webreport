@@ -7,6 +7,7 @@ globalVariables(c("created", "isRetweet"))
 #' @importFrom twitteR searchTwitter
 #' @importFrom twitteR twListToDF
 #' @importFrom dplyr %>%
+#'
 #' @export
 collect_tweets <- function(string)
 {
@@ -22,18 +23,10 @@ collect_tweets <- function(string)
   twt <- searchTwitter(string, n = 1000) %>%
     twListToDF()
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
 #' display_twts
 #'
 #' Displays a density plot of tweets
@@ -56,16 +49,19 @@ display_twts <- function(x)
     xlab("All tweets")
   plot
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' show_tweets_containing
 #'
 #' Search for and display tweet(s) containing a particular word
@@ -90,12 +86,18 @@ show_tweets_containing <- function(word)
       cat("Word not found")
     }
   }
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
+
+
+
+
+
+
+
+
 #' compare_mentions
 #'
 #' Prints a proportions table of number of tweets for various search terms
@@ -103,6 +105,7 @@ show_tweets_containing <- function(word)
 #' @param n max. number of tweets to download (default is 50)
 #'
 #' @importFrom twitteR searchTwitter
+#'
 #' @export
 compare_mentions <- function(x, n = 50L) {
   if (!is.character(x))
@@ -119,15 +122,24 @@ compare_mentions <- function(x, n = 50L) {
   twtNum <- sapply(tweetData, USE.NAMES = TRUE, length)
   twtNum <- as.table(twtNum)
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' chart_tweets
 #'
 #' Generates a barplot that compares the propotion of tweets with differnt
@@ -142,22 +154,21 @@ chart_tweets <- function(tbl)
     stop("Argument is not a table.")
   barplot(tbl, col = "brown", main = "Comparative barplot of tweets")
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' Process data types of previously stored tweets
-#'
-#' @param data An object of class \code{data.frame} specifically containing
-#' tweets stored in a local SQLite database.
-#'
-#' @note When the database is queried with \code{RSQLIte::dbReadTable()},
-#' the data types of some of the columns do not conform to the desired state.
-#' This function changes the column with dates to POSIX format, while
-#' appropriate colums of the data frame are converted to \code{logical}.
+
+
+
+
+
+
+
+
+
+
+
+# When the database is queried with \code{RSQLIte::dbReadTable()},
+# the data types of some of the columns do not conform to the desired state.
+# This function changes the column with dates to POSIX format, while
+# appropriate colums of the data frame are converted to \code{logical}.
 process_stored_tweets <- local({
   function(data)
   {
@@ -173,7 +184,3 @@ process_stored_tweets <- local({
     invisible(data)
   }
 })
-#'
-#'
-#'
-#'

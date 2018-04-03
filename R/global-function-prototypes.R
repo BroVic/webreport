@@ -73,6 +73,7 @@ visualise_pol_diff <- function(pol.list) {
 #' @importFrom tm removeWords
 #' @importFrom tm TermDocumentMatrix
 #' @importFrom wordcloud comparison.cloud
+#'
 #' @export
 generate_wordcloud <- function(data, pol.list, site)
 {
@@ -145,8 +146,8 @@ make_word_table <- function(pol.list) {
 choose_platform <- function(site)
 {
   stopifnot(is.character(site))
-  if(identical(tolower(site), "twitter")) return(1)
-  else if (identical(tolower(site), "facebook")) return(2)
+  if(identical(tolower(site), "twitter")) return(1L)
+  else if (identical(tolower(site), "facebook")) return(2L)
   else stop("Argument 'site' is not a supported social media platform.")
 }
 
@@ -190,6 +191,7 @@ make_corpus <- function(GText, stem = TRUE) {
 #' media site
 #'
 #' @import ggplot2
+#'
 #' @export
 plain_dens_plot <- function(data, platform)
 {
