@@ -4,9 +4,11 @@
 \alias{download_all_data}
 \title{download_all_data}
 \usage{
-download_all_data(data.store)
+download_all_data(keyword, data.store)
 }
 \arguments{
+\item{keyword}{A character vector containing a search term}
+
 \item{data.store}{An SQLite database}
 }
 \description{

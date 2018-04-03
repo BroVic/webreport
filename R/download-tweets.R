@@ -2,68 +2,64 @@ globalVariables(
   c('consumer_key', 'consumer_secret',
     'access_token', 'access_secret')
   )
+
+
 #' Download tweets and store in a local database
 #'
 #' @param db A local database file
+#' @param keyword A character vector containing a search term
 #'
 #' @note This function currently only works with SQLite databases
 #'
 #' @export
-download_tweets <- function(db)
+download_tweets <- function(keyword, db)
 {
   logon_to_twitter()
-  update_db(db)
+  update_db(keyword, db)
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' logon_to_twitter
-#'
-#' @description Logon to Twitter API using Oauth credentials
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' @importFrom twitteR setup_twitter_oauth
 logon_to_twitter <- function() {
-  keys <- system.file("keys", "keys.RData", "webreport")
-  if (!file.exists(keys)) {
-    warning("You must supply OAuth credentials to proceed")
+  keys <- system.file("keys/key.RData", package = "webreport")
+  if (!nchar(keys)) {
+    stop("OAuth credentials were not found")
   } else {
-    load(keys, envir = globalenv())
+    load(keys)
   }
   setup_twitter_oauth(consumer_key, consumer_secret,
                       access_token, access_secret)
   cat("Authentication successful\n")
-  rm(consumer_key,
-     consumer_secret,
-     access_token,
-     access_secret,
-     envir = globalenv())
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#' Update a local database with Twitter data
-#'
-#' @param dBase A database file for storage of downloaded tweets.
-#'
+
+
+
+
+
+
+
+
+
+
+## Update a local database with Twitter data
 #' @importFrom twitteR search_twitter_and_store
 #' @importFrom twitteR register_sqlite_backend
-#' @export
-update_db <- function(dBase) {
+update_db <- function(keyword, dBase) {
   register_sqlite_backend(dBase)
   cat("Updating database with NESREANigeria tweets... ")
-  n <- search_twitter_and_store("nesreanigeria", "nesreanigeria_tweets")
+  n <- search_twitter_and_store(keyword, paste0(keyword, "_tweets"))
   cat(sprintf(ngettext(
     n, "%d tweet added\n", "%d tweets added\n"
   ), n))

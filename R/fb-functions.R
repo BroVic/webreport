@@ -29,21 +29,16 @@ choose_insight <-
                             stop = regexpr("T", result$end_time) - 1)
   result
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' Prepare Downloaded Facebook Data for further Processing.
-#'
-#' @param df An object of class \code{data.frame}, specifically downloaded
-#' via that Facebook API.
-#'
-#' @description Processes Facebook data prior to analysis
+
+
+
+
+
+
+
+
+
+## Prepare Downloaded Facebook Data for further Processing.
 prepare_data <- function(df)
 {
   cnames <-
@@ -57,61 +52,52 @@ prepare_data <- function(df)
   df$created_time <- as.POSIXct(df$created_time)
   df
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' store_post_details
-#'
-#' @description Collect data frame of post details
-#'
-#' @note Some posts e.g. 'Events', do not come in desired format,
-#' so there's a need to condition on that possibility
-#' @param conn - an SQLite database connection
-#' @param data - a dataframe returned by \code{Rfacebook::getPage}
-#'
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' @importFrom Rfacebook getPost
 #' @importFrom RSQLite dbWriteTable
 #' @importFrom dplyr mutate
 #' @importFrom utils txtProgressBar
 #' @importFrom utils setTxtProgressBar
-store_post_details <- function(conn, data)
+store_post_details <- function(keyword, conn, data)
 {
   ## Pick an ID and use it to download details related to a particular post
-  ## This function takes a while, so it's good to keep user abreast on
-  ## progress
+  ## This function takes a while, so it's good to keep users abreast on
+  ## progress.
   ## Set up variables as much as possible to reduce indexing computations
   cat("Obtaining details for individual posts\n")
   len <- length(data$id)
-  PB <- txtProgressBar(max = len, style = 3, char = "-")
+  numPosts <- 5000
+  PBar <- txtProgressBar(max = len, style = 3, char = "-")
   nesreaToken <- fetch_token()
   nesreaToken <- nesreaToken$token
 
   for (i in 1:len) {
     ID <- data$id[i]
-    post_details <- getPost(post = ID, n = 1000, token = nesreaToken)
-
-    ## Names of tables of interest in the local database
+    post_details <- getPost(post = ID, n = numPosts, token = nesreaToken)
+    if (identical(length(post_details), numPosts))
+      warning(sprintf(
+        "You downloaded the maximum of %s posts.", numPosts))
     local.tables <-
-      c("nesreanigeria_fblikes", "nesreanigeria_fbcomments")
+      sapply(c("_fblikes", "_fbcomments"), function(x) paste0(keyword, x))
     sapply(local.tables, function(tb_name) {
-
-      ## Extract the string 'like' or 'comments' from the table names
       abbr <-
         substr(tb_name, regexpr("fb", tb_name, ignore.case = TRUE) + 2,
                nchar(tb_name))
 
-
+      ## Collect data frame; add a column for post ID
       if (abbr %in% names(post_details)) {
-        ## Collect data frame; add a column for post ID
         detail_df <- post_details[[abbr]] %>%
           mutate(post_id = ID)
 
@@ -120,8 +106,7 @@ store_post_details <- function(conn, data)
         dbWriteTable(conn, tb_name, detail_df, append = TRUE)
       }
     })
-
-    setTxtProgressBar(PB, i)   # increment the progress bar
+    setTxtProgressBar(PBar, i)
   }
   cat("\n")
 }

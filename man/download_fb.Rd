@@ -4,9 +4,11 @@
 \alias{download_fb}
 \title{download_fb.R}
 \usage{
-download_fb(dBase)
+download_fb(keyword, dBase)
 }
 \arguments{
+\item{keyword}{A character vector containing a search term}
+
 \item{dBase}{A database file}
 }
 \description{

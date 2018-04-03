@@ -16,7 +16,6 @@
 #' @export
 download_website <- function(database)
 {
-  ##
   url <- "http://www.nesrea.gov.ng/news/"
   news <- read_html(url)
   cat("URL:", url, "\n")
@@ -53,24 +52,21 @@ download_website <- function(database)
   } else
     cat("DONE\n")
 }
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#' scrape_items
-#'
-#' @description Convenienly collect data based on CSS selector
-#' and return it as a character vector
-#' @param page A web page in class \code{xml_document} and \code{xml_node}.
-#' @param selector A CSS selector on the web page; used to identify data of
-#' interest.
-#' @param verbose Logical; whether to print out informative messages.
-#'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' @importFrom rvest html_nodes
 #' @importFrom rvest html_text
 scrape_items <- function(page, selector, verbose = FALSE) {

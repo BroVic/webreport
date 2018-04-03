@@ -4,9 +4,11 @@
 \alias{download_tweets}
 \title{Download tweets and store in a local database}
 \usage{
-download_tweets(db)
+download_tweets(keyword, db)
 }
 \arguments{
+\item{keyword}{A character vector containing a search term}
+
 \item{db}{A local database file}
 }
 \description{
