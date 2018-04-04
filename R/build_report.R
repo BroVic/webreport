@@ -16,28 +16,15 @@
 #'
 #' @import RSQLite
 #' @importFrom rmarkdown render
-#' @importFrom utils choose.files
 #'
 #' @export
-build_webreport <- function(data.source = NULL, outfile = NULL, ...)
+build_webreport <- function(data.source, outfile = NULL, ...)
 {    ## TODO: Add argument for destination directory!
-
-  ## Optionally use dialog for file selection
-  if (identical(.Platform$OS.type, 'windows') & interactive()) {
-    fileOpts <- matrix(c("SQLite database (*.sqlite,*.db)", "*.sqlite;*.db"),
-                       ncol = 2L, dimnames = list("SQLite"))
+  if (!endsWith(tolower(data.source), '.db') &
+      !endsWith(tolower(data.source), '.sqlite')) {
+    stop("'data.source' should be an SQLite database file.")
   }
 
-  if (is.null(data.source)) {
-      data.source <- choose.files(caption = "Select a database",
-                                  multi = FALSE, filters = fileOpts["SQLite", ])
-  }
-  else {
-      if (!endsWith(tolower(data.source), '.db') ||
-          !endsWith(tolower(data.source), '.sqlite')) {
-        stop("'data.source' should be an SQLite database file.")
-      }
-  }
   con <- dbConnect(SQLite(), data.source)
 
   if (!dbIsValid(con))
