@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-webreport
-=========
+webreport [![Travis-CI Build Status](https://travis-ci.org/BroVic/webreport.svg?branch=master)](https://travis-ci.org/BroVic/webreport)
+=======================================================================================================================================
 
 An R package for reporting on social media data
 
