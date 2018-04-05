@@ -29,13 +29,14 @@ get_api_version <- function()
 
 
 
-#' @importFrom utils winDialog
 #' @importFrom utils menu
 fetch_token <- function()
 {
-  tkFile <- system.file("keys/NESREA_fboauth", package = "webreport")
+  vault <- "keys/NESREA_fboauth"
+  tkFile <- system.file(vault, package = "webreport")
   stopifnot(nchar(tkFile) > 0)
   load(tkFile)
+
   # TODO: What the heck was I doing with this?
   # app_id <- "203440573439361"
   # app_secret <- "9957dccac2ebcef3fd0c79128edd47bd"
@@ -43,18 +44,19 @@ fetch_token <- function()
   if (nesreaToken$expiryDate <= Sys.Date()) {
     val <- NULL
     if (interactive()) {
-      msg <- "This action will renew Facebook OAuth credentials. Continue?"
-      if (identical(.Platform$OS.type, "windows"))
-        val <- winDialog(type = "yesno", message = msg)
-      else val <- menu(choices = c("Yes", "No"), title = msg)
+      val <-
+        menu(
+          choices = c("Yes", "No"),
+          title = "This action will renew Facebook OAuth credentials. Continue?"
+          )
     }
     else {
       message("The Facebook token has expired or is non-existent.")
       message("Open R to fix this (Administrator priviledges required.")
     }
-    if (identical(val, "YES") | identical(val, 1L)) {
+    if (identical(val, 1L)) {
       save(nesreaToken,
-           file = system.file("keys/NESREA_fboauth", package = "webreport"))
+           file = system.file(vault, package = "webreport"))
     }
     else return(NULL)
   }
