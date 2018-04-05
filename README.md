@@ -4,6 +4,11 @@ webreport [![Travis-CI Build Status](https://travis-ci.org/BroVic/webreport.svg?
 
 An R package for reporting on social media data
 
+System requirements
+-------------------
+
+To use the package you need both the 32-bit and 64-bit versions of Java SE Runtime Environment (1.8 or above). *[- Downloads page -](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)*
+
 Installation
 ------------
 
