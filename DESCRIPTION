@@ -12,6 +12,7 @@ Imports:
     dplyr (>= 0.7.4),
     ggplot2 (>= 2.2.1),
     hellno (>= 0.0.1),
+    knitr (>= 1.20),
     lubridate (>= 1.7.2),
     qdap (>= 2.2.9),
     rmarkdown (>= 1.7),
@@ -23,7 +24,7 @@ Imports:
     utils (>= 3.4.3),
     wordcloud (>= 2.5),
     xml2 (>= 1.1.1)
-SystemRequirements: Java 1.8 or above
+SystemRequirements: Java 1.8 or above (both 32-bit & 64-bit)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
