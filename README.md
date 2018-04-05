@@ -7,36 +7,31 @@ An R package for reporting on social media data
 Installation
 ------------
 
-From the R console:
+The package can be installed by copying and pasting the following lines of code and executing them in the R console
 
 ``` r
 if (!requireNamespace("devtools")) install.packages("devtools")
 devtools::install_github("NESREA/webreport")
 ```
 
-Reporting
----------
+Creating a report
+-----------------
 
-To build a report in MS Word format:
-
-``` r
-build_webreport()
-```
-
-This will bring up a dialog box for selecting the appropriate data source.
-
-Alternatively, the user can provide the path as a function argument e.g.
+To build a report provide the path to the data source as an argument to `build_webreport()`. The data are stored as an [SQLite](https://www.sqlite.org/index.html) database.
 
 ``` r
-build_webreport("mydatabase.db")
+library(webreport)
+build_webreport("path/to/sqlite/file")
 ```
 
-By default, a filename will be generated for the report. To supply a filename, pass a second argument to the function:
+By default, a filename will be generated for the report, exclusively in MS Word. To supply a custom filename, pass a second argument to the function, for example
 
 ``` r
 build_webreport("mydatabase.db", "Report1.docx")
 ```
 
-The reporting period is for the immediate past week (7 days).
+To find out about other functions in the package, such as how to **download** data, check the documentation via
 
-Additional functionality is being developed.
+``` r
+help(package = 'webreport')
+```
