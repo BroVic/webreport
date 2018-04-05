@@ -76,7 +76,7 @@ store_post_details <- function(keyword, conn, data)
   ## This function takes a while, so it's good to keep users abreast on
   ## progress.
   ## Set up variables as much as possible to reduce indexing computations
-  cat("Obtaining details for individual posts\n")
+  cat("Obtaining 'comments' and 'likes' for individual posts\n")
   len <- length(data$id)
   numPosts <- 5000
   PBar <- txtProgressBar(max = len, style = 3, char = "-")
