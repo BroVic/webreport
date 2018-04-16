@@ -1,8 +1,8 @@
-#' download_website
+#' Download Website Data
 #'
-#' @details Downloads the webpage as an XML document and then makes a
+#' Downloads the webpage as an XML document and then makes a
 #' dataframe from vectors of text scraped from parts of the page via CSS
-#' selectors
+#' selectors.
 #'
 #' @param database A database file for storing downloaded web data
 #'

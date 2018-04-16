@@ -2,7 +2,7 @@
 % Please edit documentation in R/download-website.R
 \name{download_website}
 \alias{download_website}
-\title{download_website}
+\title{Download Website Data}
 \usage{
 download_website(database)
 }
@@ -10,10 +10,7 @@ download_website(database)
 \item{database}{A database file for storing downloaded web data}
 }
 \description{
-download_website
-}
-\details{
 Downloads the webpage as an XML document and then makes a
 dataframe from vectors of text scraped from parts of the page via CSS
-selectors
+selectors.
 }

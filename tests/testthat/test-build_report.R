@@ -1,13 +1,12 @@
 # test-build_webreport.R
 
-context("Building of the report using inbuilt template")
+context("Report generation")
 
 test_that("Report can be built", {
-  # expect_error(build_webreport(gui = FALSE))
-  # expect_error(build_webreport(gui = FALSE),
-  #              "Both 'file' and 'data.source' arguments must be provided.")
-  # expect_error(build_webreport(9, 9, gui = FALSE),
-  #              "is.character(file) is not TRUE", fixed = TRUE)
+  expect_error(build_webreport())
+  expect_error(build_webreport(), "'data.source' must be provided.")
+  expect_error(build_webreport(data.source = "file.txt"))
+  expect_error(build_webreport(data.source = "no-extension"))
   # expect_error(build_webreport("fakeFile.Rmd", "fakeDB.db", gui = FALSE),
   #              "file 'fake_path' does not exist")
 })
@@ -39,8 +38,4 @@ test_that("Social media network can be selected", {
   expect_equal(choose_platform('Twitter'), 1L)
   expect_equal(choose_platform('Facebook'), 2L)
   expect_error(choose_platform('otherNetwork'), 'not a supported social media')
-})
-
-test_that("Tag cloud is rendered properly", {
-
 })

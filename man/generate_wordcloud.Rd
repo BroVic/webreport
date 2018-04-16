@@ -2,7 +2,7 @@
 % Please edit documentation in R/global-function-prototypes.R
 \name{generate_wordcloud}
 \alias{generate_wordcloud}
-\title{Generate a tag Cloud}
+\title{Generate a Tag Cloud}
 \usage{
 generate_wordcloud(data, pol.list, site)
 }

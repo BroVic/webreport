@@ -2,7 +2,7 @@
 % Please edit documentation in R/global-function-prototypes.R
 \name{visualise_pol_diff}
 \alias{visualise_pol_diff}
-\title{visualise_pol_diff}
+\title{Visualise Different Polarities}
 \usage{
 visualise_pol_diff(pol.list)
 }
@@ -11,5 +11,5 @@ visualise_pol_diff(pol.list)
 }
 \description{
 Displays the occurence of words on either side of the
-spectrum using a dot plot
+spectrum using a dot plot.
 }

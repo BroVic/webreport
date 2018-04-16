@@ -2,7 +2,7 @@
 % Please edit documentation in R/tw-functions.R
 \name{show_tweets_containing}
 \alias{show_tweets_containing}
-\title{show_tweets_containing}
+\title{Show selected Tweets}
 \usage{
 show_tweets_containing(word)
 }

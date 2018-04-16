@@ -16,10 +16,10 @@ compute_emotional_valence <- function(text.var) {
 
 
 
-#' visualise_pol_diff
+#' Visualise Different Polarities
 #'
-#' @description Displays the occurence of words on either side of the
-#' spectrum using a dot plot
+#' Displays the occurence of words on either side of the
+#' spectrum using a dot plot.
 #'
 #' @param pol.list A list of polarities
 #'
@@ -55,7 +55,7 @@ visualise_pol_diff <- function(pol.list) {
 
 
 
-#' Generate a tag Cloud
+#' Generate a Tag Cloud
 #'
 #' @description Generates a tag cloud
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tw-functions.R
 \name{display_twts}
 \alias{display_twts}
-\title{display_twts}
+\title{Visualisation of Twitter Data}
 \usage{
 display_twts(x)
 }
@@ -10,5 +10,5 @@ display_twts(x)
 \item{x}{A data frame created from a list of Twitter JSON objects}
 }
 \description{
-Displays a density plot of tweets
+Displays a density plot of tweets.
 }
