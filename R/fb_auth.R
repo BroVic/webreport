@@ -1,9 +1,5 @@
-globalVariables("nesreaToken")
-
-
-
-
-
+## fb_auth.R
+## Functions around the Facebook OAuth credentials.
 
 use_pg_id <- function()
 {
@@ -30,36 +26,46 @@ get_api_version <- function()
 
 
 #' @importFrom utils menu
-fetch_token <- function()
+fetch_token <- function(vault = "keys/NESREA_fboauth")
 {
-  vault <- "keys/NESREA_fboauth"
-  tkFile <- system.file(vault, package = "webreport")
-  stopifnot(nchar(tkFile) > 0)
-  load(tkFile)
-
-  # TODO: What the heck was I doing with this?
-  # app_id <- "203440573439361"
-  # app_secret <- "9957dccac2ebcef3fd0c79128edd47bd"
-
+  nesreaToken <- find_token(vault)
   if (nesreaToken$expiryDate <= Sys.Date()) {
     val <- NULL
     if (interactive()) {
-      val <-
-        menu(
-          choices = c("Yes", "No"),
-          title = "This action will renew Facebook OAuth credentials. Continue?"
-          )
+      val <- menu(choices = c("Yes", "No"),
+                  title = "Renew Facebook access token?")
     }
     else {
       message("The Facebook token has expired or is non-existent.")
       message("Open R to fix this (Administrator priviledges required.")
+      return(NULL)
     }
     if (identical(val, 1L)) {
-      save(nesreaToken,
-           file = system.file(vault, package = "webreport"))
+      nesreaToken <-
+        fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
+      Sys.sleep(2)
+      save(nesreaToken, file = system.file(vault, package = "webreport"))
     }
-    else return(NULL)
+    else
+      return(NULL)
   }
+  invisible(nesreaToken)
+}
+
+
+
+
+
+
+
+## Get location of previously stored token
+find_token <- function(key.loc = "keys/NESREA_fboauth")
+{
+  tkFile <- system.file(key.loc, package = "webreport")
+  if (nchar(tkFile) > 0)
+    load(tkFile)
+  else
+    message("Access token was not found.")
   invisible(nesreaToken)
 }
 
@@ -89,3 +95,17 @@ fbTokenObj <- function(app_id, app_secret)
 
 
 
+#' Check Access Token Validity
+#'
+#' Check the expiry date of a Facebook access token.
+#'
+#' @details The S3 object \code{fbTokenObj} has a member that represents the
+#' date the expected expiry date as determined by the exisiting Facebook
+#' policy for access tokens.
+#'
+#' @export
+token_expiry <- function()
+{
+  nesreaToken <- find_token()
+  nesreaToken$expiryDate
+}
