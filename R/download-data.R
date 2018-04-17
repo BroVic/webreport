@@ -8,7 +8,7 @@
 #' @export
 download_all_data <- function(keyword, data.store)
 {
-  if (length(keyword > 1L)) {
+  if (length(keyword) > 1L) {
     keyword <- keyword[1]
     warning("'keyword' has more than one element and only the first was used.")
   }
@@ -23,6 +23,8 @@ download_all_data <- function(keyword, data.store)
   cat(sprintf(beg, fb))
   download_fb(keyword, data.store)
   cat(fb, end)
+
+  ## Web scraping is specific to NESREA website
   if (identical(tolower(keyword), "nesrea") |
       identical(tolower(keyword), "nesreanigeria")) {
     cat(sprintf(beg, wb))
