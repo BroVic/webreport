@@ -2,7 +2,7 @@
 % Please edit documentation in R/tw-functions.R
 \name{chart_tweets}
 \alias{chart_tweets}
-\title{chart_tweets}
+\title{Draw a Comparative Chart of tweets}
 \usage{
 chart_tweets(tbl)
 }
@@ -11,5 +11,5 @@ chart_tweets(tbl)
 }
 \description{
 Generates a barplot that compares the propotion of tweets with differnt
-search terms, colours it and gives it appropriate labels
+search terms, colours it and gives it appropriate labels.
 }

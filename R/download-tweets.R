@@ -4,7 +4,9 @@ globalVariables(
   )
 
 
-#' Download tweets and store in a local database
+#' Download and Store Tweets
+#'
+#' Downloads tweets containing a particular term and saves them to disk.
 #'
 #' @param db A local database file
 #' @param keyword A character vector containing a search term

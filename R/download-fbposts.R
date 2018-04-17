@@ -1,4 +1,6 @@
-#' download_fb.R
+#' Download Facebook Page posts
+#'
+#' Dowwload data from a Facebook page containing a particular term.
 #'
 #' @param dBase A database file
 #' @param keyword A character vector containing a search term

@@ -2,13 +2,13 @@
 % Please edit documentation in R/tw-functions.R
 \name{collect_tweets}
 \alias{collect_tweets}
-\title{collect_tweets}
+\title{Collect Some Tweets}
 \usage{
 collect_tweets(string)
 }
 \arguments{
-\item{string}{A search term}
+\item{string}{A character vector of length 1 of a search term}
 }
 \description{
-Collects tweets to a maximum of 1,000
+Collects tweets containing a particular term, to a maximum of 1,000.
 }

@@ -1,34 +1,47 @@
 globalVariables(c("value", "end_time"))
 #' Collect data on Insights from a Facebook Page.
 #'
-#' @description Retrieves and preprocesses insights from NESREA Facebook Page
+#' Retrieves and preprocesses insights from NESREA Facebook Page
 #'
 #' @param type The type of Facebook insight being queried.
 #' @note This is a wrapper for \code{Rfacebook::getInsights}
 #'
-#' @importFrom dplyr %>%
 #' @importFrom dplyr select
 #' @importFrom Rfacebook getInsights
-#' @export
+## Export when fixed
+## TODO: Remove references to dplyr
 choose_insight <-
-  function(type = c("page_fan_adds", "page_fan_removes", "page_views_login",
-                    "page_views_logout", "page_views", "page_story_adds",
-                    "page_impressions", "page_posts_impressions",
-                    "page_consumptions", "post_consumptions_by_type",
-                    "page_fans_country"))
-{
-  NESREA_page_id <- use_pg_id()
-  API_version <- get_api_version()
-  nesreaToken <- fetch_token()
-  nesreaToken <- nesreaToken$token
-  result <-
-    getInsights(object_id = NESREA_page_id, token = nesreaToken,
-                        metric = type, version = API_version) %>%
-    select(value:end_time)
-  result$end_time <- substr(result$end_time, start = 1,
-                            stop = regexpr("T", result$end_time) - 1)
-  result
-}
+  function(type = c(
+    "page_fan_adds",
+    "page_fan_removes",
+    "page_views_login",
+    "page_views_logout",
+    "page_views",
+    "page_story_adds",
+    "page_impressions",
+    "page_posts_impressions",
+    "page_consumptions",
+    "post_consumptions_by_type",
+    "page_fans_country"
+  ))
+  {
+    NESREA_page_id <- use_pg_id()
+    API_version <- get_api_version()
+    nesreaToken <- fetch_token()
+    nesreaToken <- nesreaToken$token
+    result <-
+      getInsights(
+        object_id = NESREA_page_id,
+        token = nesreaToken,
+        metric = type,
+        version = API_version
+      )
+    result <- select(result, value:end_time)
+    result$end_time <- substr(result$end_time,
+                              start = 1,
+                              stop = regexpr("T", result$end_time) - 1)
+    result
+  }
 
 
 

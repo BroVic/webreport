@@ -1,14 +1,17 @@
-#' download_all_data
+#' Download Data in General
 #'
-#' @description Download various web data from the internet
+#' Downloads data from all the relevant website and social media platforms.
+#'
 #' @param data.store An SQLite database
 #' @param keyword A character vector containing a search term
 #'
 #' @export
 download_all_data <- function(keyword, data.store)
 {
-  if (length(keyword > 1L))
+  if (length(keyword) > 1L) {
+    keyword <- keyword[1]
     warning("'keyword' has more than one element and only the first was used.")
+  }
   tw <- "Twitter"
   fb <- "Facebook"
   wb <- "Website"
@@ -20,7 +23,10 @@ download_all_data <- function(keyword, data.store)
   cat(sprintf(beg, fb))
   download_fb(keyword, data.store)
   cat(fb, end)
-  if (identical(keyword, "nesrea") | identical(keyword, "nesreanigeria")) {
+
+  ## Web scraping is specific to NESREA website
+  if (identical(tolower(keyword), "nesrea") |
+      identical(tolower(keyword), "nesreanigeria")) {
     cat(sprintf(beg, wb))
     download_website(data.store)
     cat(wb, end)

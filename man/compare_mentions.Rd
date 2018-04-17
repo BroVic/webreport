@@ -2,7 +2,7 @@
 % Please edit documentation in R/tw-functions.R
 \name{compare_mentions}
 \alias{compare_mentions}
-\title{compare_mentions}
+\title{Comparing Twitter Mentions}
 \usage{
 compare_mentions(x, n = 50L)
 }
@@ -12,5 +12,5 @@ compare_mentions(x, n = 50L)
 \item{n}{max. number of tweets to download (default is 50)}
 }
 \description{
-Prints a proportions table of number of tweets for various search terms
+Prints a proportions table of number of tweets for various search terms.
 }

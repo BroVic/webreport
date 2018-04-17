@@ -2,7 +2,7 @@
 % Please edit documentation in R/download-fbposts.R
 \name{download_fb}
 \alias{download_fb}
-\title{download_fb.R}
+\title{Download Facebook Page posts}
 \usage{
 download_fb(keyword, dBase)
 }
@@ -12,5 +12,5 @@ download_fb(keyword, dBase)
 \item{dBase}{A database file}
 }
 \description{
-download_fb.R
+Dowwload data from a Facebook page containing a particular term.
 }

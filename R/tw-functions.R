@@ -1,8 +1,9 @@
 globalVariables(c("created", "isRetweet"))
-#'  collect_tweets
+#' Collect Some Tweets
 #'
-#' Collects tweets to a maximum of 1,000
-#' @param string A search term
+#' Collects tweets containing a particular term, to a maximum of 1,000.
+#'
+#' @param string A character vector of length 1 of a search term
 #'
 #' @importFrom twitteR searchTwitter
 #' @importFrom twitteR twListToDF
@@ -27,9 +28,10 @@ collect_tweets <- function(string)
 
 
 
-#' display_twts
+#' Visualisation of Twitter Data
 #'
-#' Displays a density plot of tweets
+#' Displays a density plot of tweets.
+#'
 #' @param x A data frame created from a list of Twitter JSON objects
 #' @import ggplot2
 #' @export
@@ -62,7 +64,7 @@ display_twts <- function(x)
 
 
 
-#' show_tweets_containing
+#' Show selected Tweets
 #'
 #' Search for and display tweet(s) containing a particular word
 #'
@@ -98,9 +100,10 @@ show_tweets_containing <- function(word)
 
 
 
-#' compare_mentions
+#' Comparing Twitter Mentions
 #'
-#' Prints a proportions table of number of tweets for various search terms
+#' Prints a proportions table of number of tweets for various search terms.
+#'
 #' @param x character vector of search terms
 #' @param n max. number of tweets to download (default is 50)
 #'
@@ -130,20 +133,11 @@ compare_mentions <- function(x, n = 50L) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-#' chart_tweets
+#' Draw a Comparative Chart of tweets
 #'
 #' Generates a barplot that compares the propotion of tweets with differnt
-#' search terms, colours it and gives it appropriate labels
+#' search terms, colours it and gives it appropriate labels.
+#'
 #' @param tbl A table; principally object returned by \code{compare_mentions}
 #' @importFrom graphics barplot
 #'

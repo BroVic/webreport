@@ -2,7 +2,7 @@
 % Please edit documentation in R/download-data.R
 \name{download_all_data}
 \alias{download_all_data}
-\title{download_all_data}
+\title{Download Data in General}
 \usage{
 download_all_data(keyword, data.store)
 }
@@ -12,5 +12,5 @@ download_all_data(keyword, data.store)
 \item{data.store}{An SQLite database}
 }
 \description{
-Download various web data from the internet
+Downloads data from all the relevant website and social media platforms.
 }

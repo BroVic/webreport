@@ -2,7 +2,7 @@
 % Please edit documentation in R/download-tweets.R
 \name{download_tweets}
 \alias{download_tweets}
-\title{Download tweets and store in a local database}
+\title{Download and Store Tweets}
 \usage{
 download_tweets(keyword, db)
 }
@@ -12,7 +12,7 @@ download_tweets(keyword, db)
 \item{db}{A local database file}
 }
 \description{
-Download tweets and store in a local database
+Downloads tweets containing a particular term and saves them to disk.
 }
 \note{
 This function currently only works with SQLite databases
