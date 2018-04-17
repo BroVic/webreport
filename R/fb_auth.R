@@ -1,5 +1,7 @@
 ## fb_auth.R
 ## Functions around the Facebook OAuth credentials.
+globalVariables("nesreaToken")
+
 
 use_pg_id <- function()
 {
