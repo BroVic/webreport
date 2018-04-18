@@ -4,7 +4,7 @@
 \alias{build_webreport}
 \title{Build a report from a source file}
 \usage{
-build_webreport(data.source, outfile = character(), launch.file = TRUE, ...)
+build_webreport(data.source, outfile = NULL, launch.file = TRUE, ...)
 }
 \arguments{
 \item{data.source}{A database file containing web data}

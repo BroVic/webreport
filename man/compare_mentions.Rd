@@ -4,12 +4,16 @@
 \alias{compare_mentions}
 \title{Comparing Twitter Mentions}
 \usage{
-compare_mentions(x, n = 50L)
+compare_mentions(terms, n = 500L, from = NULL, to = NULL)
 }
 \arguments{
-\item{x}{character vector of search terms}
+\item{terms}{Character vector of Twitter handles of length > 1}
 
-\item{n}{max. number of tweets to download (default is 50)}
+\item{n}{Maximum number of tweets to download (default is 500)}
+
+\item{from}{Tweets from a given data in the format YYYY-MM-DD}
+
+\item{to}{Tweets up to a given data in the format YYYY-MM-DD}
 }
 \description{
 Prints a proportions table of number of tweets for various search terms.

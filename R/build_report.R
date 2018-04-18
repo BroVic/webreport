@@ -37,7 +37,7 @@
 #'
 #' @export
 ## The function
-build_webreport <- function(data.source, outfile = character(), launch.file = TRUE, ...)
+build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...)
 {
   if (missing(data.source))
     stop("'data.source' must be provided.")
