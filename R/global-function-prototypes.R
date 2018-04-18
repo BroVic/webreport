@@ -16,17 +16,10 @@ compute_emotional_valence <- function(text.var) {
 
 
 
-#' Visualise Different Polarities
-#'
-#' Displays the occurence of words on either side of the
-#' spectrum using a dot plot.
-#'
-#' @param pol.list A list of polarities
-#'
+
 #' @importFrom graphics par
 #' @importFrom graphics dotchart
 #' @importFrom graphics mtext
-#' @export
 visualise_pol_diff <- function(pol.list) {
   pol.tab <- make_word_table(pol.list)
   oldpar <- par()
@@ -55,16 +48,7 @@ visualise_pol_diff <- function(pol.list) {
 
 
 
-#' Generate a Tag Cloud
-#'
-#' @description Generates a tag cloud
-#'
-#' @param data An object of class \code{data.frame} that has a column
-#' with computed emotional valence
-#' @param pol.list A list of polarities
-#' @param site A character vector of length 1; name of the social media
-#' platform
-#'
+
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom graphics layout
 #' @importFrom graphics par
@@ -73,8 +57,6 @@ visualise_pol_diff <- function(pol.list) {
 #' @importFrom tm removeWords
 #' @importFrom tm TermDocumentMatrix
 #' @importFrom wordcloud comparison.cloud
-#'
-#' @export
 generate_wordcloud <- function(data, pol.list, site)
 {
   pol.tab <- make_word_table(pol.list)
@@ -181,18 +163,8 @@ make_corpus <- function(GText, stem = TRUE) {
 
 
 
-#' Draw a density plot of social data
-#'
-#' @description Plots a simple density plot for key variables in social media
-#' data.
-#'
-#' @param data An object of class \code{data.frame}
-#' @param platform A character vector of length 1 with the name of the social
-#' media site
-#'
+## Draw a density plot of social data
 #' @import ggplot2
-#'
-#' @export
 plain_dens_plot <- function(data, platform)
 {
   choice <- choose_platform(site = platform)
