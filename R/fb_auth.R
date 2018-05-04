@@ -28,9 +28,9 @@ get_api_version <- function()
 
 
 #' @importFrom utils menu
-fetch_token <- function(vault = "keys/NESREA_fboauth")
+fetch_token <- function()
 {
-  nesreaToken <- find_token(vault)
+  nesreaToken <- find_token("keys/NESREA_fboauth")
   if (nesreaToken$expiryDate <= Sys.Date()) {
     val <- NULL
     if (interactive()) {
@@ -38,15 +38,12 @@ fetch_token <- function(vault = "keys/NESREA_fboauth")
                   title = "Renew Facebook access token?")
     }
     else {
-      message("The Facebook token has expired or is non-existent.")
-      message("Open R to fix this (Administrator priviledges required.")
+      message("Your Facebook access token has expired or is non-existent.")
+      message("Run 'renew_fb_cred' to get a new one (Admin role required).")
       return(NULL)
     }
     if (identical(val, 1L)) {
-      nesreaToken <-
-        fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
-      Sys.sleep(2)
-      save(nesreaToken, file = system.file(vault, package = "webreport"))
+      renew_fb_cred()
     }
     else
       return(NULL)
@@ -110,4 +107,26 @@ token_expiry <- function()
 {
   nesreaToken <- find_token()
   nesreaToken$expiryDate
+}
+
+
+
+
+
+#' Renew Facebook Token
+#'
+#' Obtain a fresh Facebook access token upon expiry of extant one
+#'
+#' @note The app id and app secret that are used to obtain the token are
+#' particular to NESREA.
+#'
+#' @export
+renew_fb_cred <- function() {
+  if (token_expiry() > Sys.Date())
+    stop("Token has not yet expired.")
+  nesreaToken <-
+    fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
+  Sys.sleep(2)
+  save(nesreaToken,
+       file = system.file("keys/NESREA_fboauth", package = "webreport"))
 }
