@@ -115,10 +115,17 @@ token_expiry <- function()
 
 #' Renew Facebook Token
 #'
-#' Obtain a fresh Facebook access token upon expiry of extant one
+#' Obtain a fresh Facebook access token upon expiry of the extant one
 #'
-#' @note The app id and app secret that are used to obtain the token are
-#' particular to NESREA.
+#' @details When run, the Facebook authentication process is initiated, which
+#' involves copying and pasting a URL into the relevant field in the App's
+#' 'Settings' page. For more information on Facebook authentication see
+#' \code{\link[Rfacebook]{fbOAuth}}.
+#'
+#' @note The two credentials that are used to obtain the token (i.e. the App ID
+#' and the App secret) are specific to NESREA. Only users with access to the
+#' App's 'Settings' page at \url{https://developers.facebook.com/} can effect
+#' the renewal.
 #'
 #' @export
 renew_fb_cred <- function() {
