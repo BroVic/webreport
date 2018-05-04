@@ -28,9 +28,9 @@ get_api_version <- function()
 
 
 #' @importFrom utils menu
-fetch_token <- function(vault = "keys/NESREA_fboauth")
+fetch_token <- function()
 {
-  nesreaToken <- find_token(vault)
+  nesreaToken <- find_token("keys/NESREA_fboauth")
   if (nesreaToken$expiryDate <= Sys.Date()) {
     val <- NULL
     if (interactive()) {
@@ -38,15 +38,12 @@ fetch_token <- function(vault = "keys/NESREA_fboauth")
                   title = "Renew Facebook access token?")
     }
     else {
-      message("The Facebook token has expired or is non-existent.")
-      message("Open R to fix this (Administrator priviledges required.")
+      message("Your Facebook access token has expired or is non-existent.")
+      message("Run 'renew_fb_cred' to get a new one (Admin role required).")
       return(NULL)
     }
     if (identical(val, 1L)) {
-      nesreaToken <-
-        fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
-      Sys.sleep(2)
-      save(nesreaToken, file = system.file(vault, package = "webreport"))
+      renew_fb_cred()
     }
     else
       return(NULL)
@@ -110,4 +107,33 @@ token_expiry <- function()
 {
   nesreaToken <- find_token()
   nesreaToken$expiryDate
+}
+
+
+
+
+
+#' Renew Facebook Token
+#'
+#' Obtain a fresh Facebook access token upon expiry of the extant one
+#'
+#' @details When run, the Facebook authentication process is initiated, which
+#' involves copying and pasting a URL into the relevant field in the App's
+#' 'Settings' page. For more information on Facebook authentication see
+#' \code{\link[Rfacebook]{fbOAuth}}.
+#'
+#' @note The two credentials that are used to obtain the token (i.e. the App ID
+#' and the App secret) are specific to NESREA. Only users with access to the
+#' App's 'Settings' page at \url{https://developers.facebook.com/} can effect
+#' the renewal.
+#'
+#' @export
+renew_fb_cred <- function() {
+  if (token_expiry() > Sys.Date())
+    stop("Token has not yet expired.")
+  nesreaToken <-
+    fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
+  Sys.sleep(2)
+  save(nesreaToken,
+       file = system.file("keys/NESREA_fboauth", package = "webreport"))
 }
