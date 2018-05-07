@@ -71,9 +71,10 @@ build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...
   rmarkdown::render(input = skl,
                     output_format = "word_document",
                     output_file = outfile,
-                    output_dir = ".",
+                    output_dir = dirname(outfile),
                     params = list(data = dfs))
-  if (launch.file) system2("open", args = outfile, invisible = FALSE)
-  else message(paste("Output has been saved to the directory",
-                     sQuote(dirname(normalizePath((outfile))))))
+  if (launch.file)
+    try(system2("open", args = outfile, invisible = FALSE))
+  message(paste("Report has been saved to",
+                sQuote(dirname(normalizePath(outfile)))))
 }
