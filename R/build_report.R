@@ -36,7 +36,6 @@
 #' @importFrom rmarkdown render
 #'
 #' @export
-## The function
 build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...)
 {
   if (missing(data.source))
@@ -67,7 +66,8 @@ build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...
              tmpdir = ".", fileext = ".docx")
   }
   skl <- system.file("rmarkdown/templates/reports/skeleton/skeleton.Rmd",
-                        package = "webreport")
+                     package = "webreport",
+                     mustWork = TRUE)
   rmarkdown::render(input = skl,
                     output_format = "word_document",
                     output_file = outfile,
