@@ -3,6 +3,11 @@
 ## punctuations that expectedly occur in the text, but this has been suppressed
 #' @importFrom qdap polarity
 compute_emotional_valence <- function(text.var) {
+  stopifnot(is.character(text.var))
+  if (!length(text.var) > 0L)
+    stop(sQuote(text.var), "is of length 0")
+  if (length(dim(text.var)) > 1)
+    stop(sQuote(text.var), "has more than one dimension")
   suppressWarnings(
     lapply(text.var, function(txt) {
       txt <- gsub("(\\.|!|\\?)+\\s+|(\\++)", " ", txt)
