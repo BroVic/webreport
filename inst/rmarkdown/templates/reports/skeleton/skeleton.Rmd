@@ -34,17 +34,17 @@ reportPeriodText <-
 ## Website
 
 ```{r load all data}
-newsData <- params$data$webnews
+all_webnews <- params$data$webnews
 all_twts <- params$data$tweets
 all_fbs <- params$data$fbposts
 ```
 
 ```{r website}
-newsData$Date <- newsData$Date %>%
+all_webnews$Date <- all_webnews$Date %>%
   as.Date(origin = "1970-01-01") %>%
   as.POSIXct()
 
-newsData <- newsData %>%
+all_webnews <- all_webnews %>%
   mutate(Month = format(Date, "%B")) %>%
   mutate(Year = format(Date, "%Y"))
 
@@ -52,9 +52,9 @@ newsData <- newsData %>%
 thisMth <- format(today(), "%B")
 thisYr <- format(today(), "%Y")
 
-mth_news <- newsData %>%
+mth_news <- all_webnews %>%
   filter(Month == thisMth & Year == thisYr)
-wk_news <- newsData %>%
+wk_news <- all_webnews %>%
   filter(as.Date(Date) >= today() - 7)
 
 ## TODO: Draw plots reflecting activity trend. Roll over a one-year period.
@@ -62,16 +62,18 @@ wk_news <- newsData %>%
 
 | **News Stories** |    **Result**                                |
 |------------------|----------------------------------------------|
-| All-time         | `r nrow(newsData)`                           |
+| All-time         | `r nrow(all_webnews)`                           |
 | In `r thisMth`   | `r nrow(mth_news)`                           |
 | Last 7 days      | `r nrow(wk_news)`                            |
-| Most recent      | `r newsData$Title[which.max(newsData$Date)]` |
+| Most recent      | `r all_webnews$Title[which.max(all_webnews$Date)]` |
 |                  |                                              |
 
 
 ## Twitter
 ```{r load twitter data, message=FALSE}
-## Process tweets
+## Process tweets by reconverting date field to POSIX type 
+## and TRUE/FALSE fields from integer to logical.
+## These were altered upon storage in the database.
 all_twts <- process_stored_tweets(all_twts)
 
 ## Add a column of Date objects for easy categorisation. Also carry 
@@ -83,6 +85,7 @@ wk_data <- all_twts %>%
   arrange(date_only) %>%
   mutate(day = weekdays(date_only, abbreviate = TRUE)) %>%
   mutate(Type = ifelse(isRetweet, "Retweet", "Original"))
+
 wk_data$day <-  factor(wk_data$day,
                        levels = unique(wk_data$day),
                        ordered = TRUE)
@@ -111,16 +114,15 @@ A <- "1970-01-01"
 thisWk <- as.numeric(format(today(), "%V"))
 
 twtsPerWeek <- all_twts %>% 
-  filter(as.Date(as.POSIXct(created, origin = A)) - today() <= 365) %>% 
-  mutate(week = as.numeric(format(as.POSIXct(created, origin = A), "%V"))) %>% 
+  filter(Sys.Date() - as.Date(created) <= 365) %>% 
+  mutate(week = as.numeric(format(as.Date(created, origin = A), "%V"))) %>% 
   group_by(week) %>% 
   count() %>% 
-  as_tibble() %>% 
   mutate(lag = abs(week - thisWk)) %>% 
   arrange(lag)
 
-plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2)
-
+plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2, 
+     main = "'@nesreanigeria' mentions over past 52 weeks")
 ```
 
 |     **Description**          |    **Result**                    |
@@ -187,7 +189,7 @@ wk_Posts <- mth_Posts %>%
 ## Website 
 
 ```{r news summary, results='asis'}
-kable(head(newsData[, c(1, 4, 5)], n = 10L),
+kable(head(all_webnews[, c(1, 4, 5)], n = 10L),
              caption = "Table: Ten (10) Most Recently Uploaded News Stories")
 ```
 
