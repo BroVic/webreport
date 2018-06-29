@@ -1,3 +1,33 @@
+# global-function-prototypes.R
+
+# Internal helper functions
+
+## Collects the internal data and presents
+## it for rendering the document
+#' @importFrom RSQLite dbConnect
+#' @importFrom RSQLite dbDisconnect
+#' @importFrom RSQLite dbIsValid
+#' @importFrom RSQLite dbListTables
+#' @importFrom RSQLite dbReadTable
+#' @importFrom RSQLite SQLite
+provide_internal_data <- function(db)
+{
+  con <- dbConnect(SQLite(), db)
+  if (!dbIsValid(con))
+    stop("Connection to database not established.")
+  tbls <- dbListTables(con)
+  dfs <- sapply(tbls, USE.NAMES = TRUE, function(table) {
+    dbReadTable(con, table)
+  })
+  names(dfs) <- gsub('^nesreanigeria_', '', names(dfs))
+  on.exit({
+    if (dbIsValid(con))
+      dbDisconnect(con)
+  })
+
+  invisible(dfs)
+}
+
 # Calclates the polarity for each text field
 ## This operation ought to generate series of warnings because of multiple
 ## punctuations that expectedly occur in the text, but this has been suppressed

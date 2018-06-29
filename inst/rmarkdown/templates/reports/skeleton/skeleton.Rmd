@@ -19,29 +19,44 @@ lapply(pkgs, function(P)
   suppressPackageStartupMessages(require(P, character.only = TRUE)))
 
 opts_chunk$set(echo = FALSE)
+getwd()
 ```
 
-```{r initialize, message=FALSE, include=FALSE}
+```{r key variables, message=FALSE, include=FALSE}
+date.standard <- "1970-01-01"
 reportPeriodText <- 
   paste(format(today() - 6, "%d %B"), "to", format(today(), "%d %B %Y"))
 
-## TODO: Implement month & year transitions
+## Load the data
+if (interactive()) {
+  proj <- rstudioapi::getActiveProject()
+  this <- "webreport"
+  if (identical(basename(proj), this) & !(this %in% loadedNamespaces())) {
+    devtools::load_all()
+    if (!Sys.info()['nodename'] == "SA-DG")
+      stop("That operation is restricted. Please run non-interactively.")
+  }
+ data <- 
+   provide_internal_data("../../../../../../NESREA_social/data/nesreanigeria.db")
+} else
+  data <- params$data
+
+all_webnews <- data$webnews
+all_twts <- data$tweets
+all_fbs <- data$fbposts
+
 ```
 
 # Overview
 **Reporting Period:** `r reportPeriodText`.
 
-## Website
+***
 
-```{r load all data}
-all_webnews <- params$data$webnews
-all_twts <- params$data$tweets
-all_fbs <- params$data$fbposts
-```
+**Website**
 
 ```{r website}
 all_webnews$Date <- all_webnews$Date %>%
-  as.Date(origin = "1970-01-01") %>%
+  as.Date(origin = date.standard) %>%
   as.POSIXct()
 
 all_webnews <- all_webnews %>%
@@ -68,8 +83,9 @@ wk_news <- all_webnews %>%
 | Most recent      | `r all_webnews$Title[which.max(all_webnews$Date)]` |
 |                  |                                              |
 
+***
 
-## Twitter
+**Twitter**
 ```{r load twitter data, message=FALSE}
 ## Process tweets by reconverting date field to POSIX type 
 ## and TRUE/FALSE fields from integer to logical.
@@ -109,21 +125,6 @@ busiest_day <- which.max(table(wk_data$date_only))
 busiest_day <- ymd(names(busiest_day))
 ```
 
-```{r series-twitter}
-A <- "1970-01-01"
-thisWk <- as.numeric(format(today(), "%V"))
-
-twtsPerWeek <- all_twts %>% 
-  filter(Sys.Date() - as.Date(created) <= 365) %>% 
-  mutate(week = as.numeric(format(as.Date(created, origin = A), "%V"))) %>% 
-  group_by(week) %>% 
-  count() %>% 
-  mutate(lag = abs(week - thisWk)) %>% 
-  arrange(lag)
-
-plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2, 
-     main = "'@nesreanigeria' mentions over past 52 weeks")
-```
 
 |     **Description**          |    **Result**                    |
 |------------------------------|----------------------------------|
@@ -140,7 +141,9 @@ plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2,
 
 <!-- TODO: Add No. of followers (overall) & new followers (in last 7 days) -->
 
-## Facebook
+***
+
+**Facebook**
 ```{r load-fb-data, message=FALSE}
                         ############
                         # Facebook #
@@ -190,10 +193,31 @@ wk_Posts <- mth_Posts %>%
 
 ```{r news summary, results='asis'}
 kable(head(all_webnews[, c(1, 4, 5)], n = 10L),
-             caption = "Table: Ten (10) Most Recently Uploaded News Stories")
+             caption = "Table: 10 Most Recent News Stories on Website")
 ```
 
-## Twitter
+# Twitter
+
+```{r tweet time-series}
+thisWk <- as.numeric(format(today(), "%V"))
+
+twtsPerWeek <- all_twts %>% 
+  filter(Sys.Date() - as.Date(created) <= 365) %>% 
+  mutate(week = as.numeric(format(as.Date(created, origin = date.standard), "%V"))) %>% 
+  group_by(week) %>% 
+  count() %>% 
+  mutate(lag = abs(week - thisWk)) %>% 
+  arrange(lag)
+
+plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2, 
+     main = "'@nesreanigeria' mentions over past 52 weeks")
+
+## TODO: Implement month & year transitions
+```
+
+```{r}
+
+```
 
 ```{r plain density, warning=FALSE, message=FALSE}
 simplePlot <- plain_dens_plot(data = wk_data, platform = "twitter")
@@ -215,6 +239,7 @@ ggplot(wk_data, aes(created)) +
   xlab("Date")
 ```
 
+## Sentiment Analysis
 ```{r twitter sentiments dotchart-1}
 spl <- split(wk_data, wk_data$isRetweet)
 origTwts <- spl[['FALSE']]
@@ -242,7 +267,7 @@ RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
 ```
 
 
-## Facebook
+# Facebook
 
 ```{r density dist: FB posts}
 ggplot(fbPosts, aes(created_time)) +
