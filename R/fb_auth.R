@@ -84,8 +84,10 @@ find_token <- function(key.loc = "keys/NESREA_fboauth")
 # token's expiration date.
 
 #' @importFrom Rfacebook fbOAuth
+#' @importFrom utils browseURL
 fbTokenObj <- function(app_id, app_secret)
 {
+  browseURL('https://developers.facebook.com/apps/203440573439361/settings/basic/')
   structure(
     list(token = fbOAuth(app_id, app_secret),
          expiryDate = Sys.Date() + 60),
