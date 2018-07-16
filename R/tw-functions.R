@@ -172,10 +172,9 @@ process_stored_tweets <- local({
       stop("Number of columns is ", ncol(data))
     forLogi <- c('favorited', 'truncated', 'isRetweet', 'retweeted')
     lapply(forLogi, function(x) stopifnot(is.integer(data[[x]])))
+    sapply(forLogi, function(var)
+      data[[var]] <<- as.logical(data[[var]]))
     stopifnot(is.double(data$created))
-    sapply(forLogi, function(var) {
-      data[[var]] <<- as.logical(data[[var]])
-    })
     data$created <- as.POSIXct(data$created, origin = '1970-01-01')
     invisible(data)
   }

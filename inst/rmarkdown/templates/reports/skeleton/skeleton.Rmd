@@ -47,10 +47,12 @@ all_fbs <- data$fbposts
 
 ```
 
-# Overview
+
 **Reporting Period:** `r reportPeriodText`.
 
 ***
+
+# Overview
 
 **Website**
 
@@ -75,13 +77,13 @@ wk_news <- all_webnews %>%
 ## TODO: Draw plots reflecting activity trend. Roll over a one-year period.
 ```
 
-| **News Stories** |    **Result**                                |
-|------------------|----------------------------------------------|
-| All-time         | `r nrow(all_webnews)`                           |
-| In `r thisMth`   | `r nrow(mth_news)`                           |
-| Last 7 days      | `r nrow(wk_news)`                            |
+| **News Stories** |    **Result**                                      |
+|------------------|----------------------------------------------------|
+| All-time         | `r nrow(all_webnews)`                              |
+| In `r thisMth`   | `r nrow(mth_news)`                                 |
+| Last 7 days      | `r nrow(wk_news)`                                  |
 | Most recent      | `r all_webnews$Title[which.max(all_webnews$Date)]` |
-|                  |                                              |
+|                  |                                                    |
 
 ***
 
