@@ -28,3 +28,26 @@ test_that("Twitter mentions can be compared", {
   expect_error(compare_mentions(c(hnd1, hnd2), to = as.character(Sys.Date())),
                "'to' cannot be passed when 'from' is NULL")
 })
+
+
+
+# ====
+
+context('Local data retrieval')
+
+test_that('Tweet data is type-checked and transformed where appropriate', {
+  twts <- readRDS('test-data/ntweets.rds')
+  val <- process_stored_tweets(twts)
+
+  expect_is(val, 'data.frame')
+  expect_type(val, 'list')
+  expect_error(process_stored_tweets(),
+               'argument "data" is missing, with no default')
+  expect_error(process_stored_tweets(999))
+  expect_error(process_stored_tweets(mtcars),
+               'Number of columns is 11')
+  ## TODO: Add test case where columns == 16 but data are incompatible
+  expect_error(process_stored_tweets("A string."),
+               'inherits(data, "data.frame") is not TRUE',
+               fixed = TRUE)
+})
