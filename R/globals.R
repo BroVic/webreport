@@ -10,7 +10,7 @@
 #' @importFrom RSQLite dbListTables
 #' @importFrom RSQLite dbReadTable
 #' @importFrom RSQLite SQLite
-provide_internal_data <- function(db)
+provideInternalData <- function(db)
 {
   con <- dbConnect(SQLite(), db)
   if (!dbIsValid(con))
@@ -96,7 +96,7 @@ generate_wordcloud <- function(data, pol.list, site)
 {
   pol.tab <- make_word_table(pol.list)
   polSplit <- split(data, sign(data$emotionalValence))
-  picked <- choose_platform(site)
+  picked <- choosePlatform(site)
   var <- c("text", "message")
   var <- var[picked]
   if (length(polSplit) != 3) {
@@ -160,7 +160,7 @@ make_word_table <- function(pol.list) {
 # Selects the appropriate social media platform being analysed. Returns an
 # integer value, 1 for Twitter and 2 for Facebook, which is used internally
 # for indexing other relevant functions.
-choose_platform <- function(site)
+choosePlatform <- function(site)
 {
   stopifnot(is.character(site))
   if(identical(tolower(site), "twitter")) return(1L)
@@ -191,29 +191,6 @@ make_corpus <- function(GText, stem = TRUE) {
 }
 
 
-
-
-
-
-
-
-
-## Draw a density plot of social data
-#' @import ggplot2
-plain_dens_plot <- function(data, platform)
-{
-  choice <- choose_platform(site = platform)
-  type <- c("tweets", "comments")
-  var <- c("created", "created_time")
-  hue <- c("red", "darkblue")
-  title <- paste("Proportion of", type[choice])
-  gg <- ggplot(data, aes_string(var[choice])) +
-    geom_density(fill = hue[choice], alpha = 0.4) +
-    theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-    ggtitle(title) +
-    xlab("Date")
-  gg
-}
 
 
 
