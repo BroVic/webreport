@@ -75,7 +75,7 @@ build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...
       package = "webreport",
       mustWork = TRUE
     )
-  data <- provide_internal_data(data.source)
+  data <- provideInternalData(data.source)
   rmarkdown::render(
     input = template,
     output_format = "word_document",

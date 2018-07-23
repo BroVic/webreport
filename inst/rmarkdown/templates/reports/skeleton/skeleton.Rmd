@@ -22,9 +22,9 @@ opts_chunk$set(echo = FALSE)
 getwd()
 ```
 
-```{r key variables, message=FALSE, include=FALSE}
+```{r setup data frames, message=FALSE, include=FALSE}
 date.standard <- "1970-01-01"
-reportPeriodText <- 
+report.period <- 
   paste(format(today() - 6, "%d %B"), "to", format(today(), "%d %B %Y"))
 
 ## Load the data
@@ -37,31 +37,44 @@ if (interactive()) {
       stop("That operation is restricted. Please run non-interactively.")
   }
  data <- 
-   provide_internal_data("../../../../../../NESREA_social/data/nesreanigeria.db")
+   provideInternalData("../../../../../../NESREA_social/data/nesreanigeria.db")
 } else
   data <- params$data
-
-all_webnews <- data$webnews
-all_twts <- data$tweets
-all_fbs <- data$fbposts
-
 ```
 
 
-**Reporting Period:** `r reportPeriodText`.
+**Reporting Period:** `r report.period`.
 
 ***
 
-# Overview
+# Time Series
+```{r web time-series}
+make_ts(data = data$webnews, columnname = 'Date', colour = 'green')
+```
+
+```{r tweet time-series}
+make_ts(data = data$tweets, columnname = 'created', colour = 'lightblue')
+## TODO: Implement month & year transitions
+```
+
+```{r fb time-series}
+make_ts(data = data$fbposts, columnname = 'created_time')
+```
+
+
+
+
+# Summary Tables
 
 **Website**
 
 ```{r website}
-all_webnews$Date <- all_webnews$Date %>%
+webnews <- data$webnews
+webnews$Date <- webnews$Date %>%
   as.Date(origin = date.standard) %>%
   as.POSIXct()
 
-all_webnews <- all_webnews %>%
+webnews <- webnews %>%
   mutate(Month = format(Date, "%B")) %>%
   mutate(Year = format(Date, "%Y"))
 
@@ -69,36 +82,35 @@ all_webnews <- all_webnews %>%
 thisMth <- format(today(), "%B")
 thisYr <- format(today(), "%Y")
 
-mth_news <- all_webnews %>%
+mth_news <- webnews %>%
   filter(Month == thisMth & Year == thisYr)
-wk_news <- all_webnews %>%
-  filter(as.Date(Date) >= today() - 7)
 
-## TODO: Draw plots reflecting activity trend. Roll over a one-year period.
+wk_news <- webnews %>%
+  filter(as.Date(Date) >= today() - 7)
 ```
 
 | **News Stories** |    **Result**                                      |
 |------------------|----------------------------------------------------|
-| All-time         | `r nrow(all_webnews)`                              |
+| All-time         | `r nrow(webnews)`                              |
 | In `r thisMth`   | `r nrow(mth_news)`                                 |
 | Last 7 days      | `r nrow(wk_news)`                                  |
-| Most recent      | `r all_webnews$Title[which.max(all_webnews$Date)]` |
+| Most recent      | `r webnews$Title[which.max(webnews$Date)]` |
 |                  |                                                    |
 
 ***
 
 **Twitter**
 ```{r load twitter data, message=FALSE}
-## Process tweets by reconverting date field to POSIX type 
-## and TRUE/FALSE fields from integer to logical.
+## Process tweets by reconverting date field to POSIXct type 
+## and the TRUE/FALSE fields from integer to logical.
 ## These were altered upon storage in the database.
-all_twts <- process_stored_tweets(all_twts)
+twts <- process_stored_tweets(data$tweets)
 
 ## Add a column of Date objects for easy categorisation. Also carry 
 ## out a check to see whether the database needs to be updated.
-all_twts$date_only <- as.Date(all_twts$created)
+twts$date_only <- as.Date(twts$created)
 
-wk_data <- all_twts %>%
+wk_data <- twts %>%
   filter(date_only >= (today() - 6) & date_only <= (today())) %>%
   arrange(date_only) %>%
   mutate(day = weekdays(date_only, abbreviate = TRUE)) %>%
@@ -108,7 +120,7 @@ wk_data$day <-  factor(wk_data$day,
                        levels = unique(wk_data$day),
                        ordered = TRUE)
   
-last_wk <- all_twts %>%
+last_wk <- twts %>%
   filter(date_only >= (today() - 13) & date_only <= (today() - 7))
 
 ## Remove characters from the text of tweets that are not human-readable, 
@@ -116,15 +128,15 @@ last_wk <- all_twts %>%
 wk_data$text <- remove_nonreadables(wk_data$text)
 
 ## Some objects to be used to generate and/or display statistics
-no.wk <- nrow(wk_data)
-month_begin <- floor_date(today(), "month")
-month_end <- ceiling_date(today(), "month")
-mth_data <- filter(all_twts, date_only >= month_begin & date_only <= month_end)
-mostRTed <- wk_data$text[which.max(wk_data$retweetCount)]
-mostFaved <- wk_data$text[which.max(wk_data$favoriteCount)]
+no.wk        <- nrow(wk_data)
+month_begin  <- floor_date(today(), "month")
+month_end    <- ceiling_date(today(), "month")
+mth_data     <- filter(twts, date_only >= month_begin & date_only <= month_end)
+mostRTed     <- wk_data$text[which.max(wk_data$retweetCount)]
+mostFaved    <- wk_data$text[which.max(wk_data$favoriteCount)]
 tweets_by_us <- filter(wk_data, screenName == "NESREANigeria")
-busiest_day <- which.max(table(wk_data$date_only))
-busiest_day <- ymd(names(busiest_day))
+busiest_day  <- which.max(table(wk_data$date_only))
+busiest_day  <- ymd(names(busiest_day))
 ```
 
 
@@ -152,7 +164,7 @@ busiest_day <- ymd(names(busiest_day))
                         ############
 ## Load data on Facebook Page posts from database;
 ## also do a little data wrangling
-fbPosts <- all_fbs %>%
+fbPosts <- data$fbposts %>%
   prepare_data(.) %>%
   select(message:shares_count) %>%
   mutate(created_mth = format(as.Date(created_time), "%B")) %>%
@@ -191,38 +203,17 @@ wk_Posts <- mth_Posts %>%
 |Most Commented  (Overall)   |`r return_text(fbPosts, "comments_count")`|
 |                            |                                          |
 
-## Website 
+# Website 
 
 ```{r news summary, results='asis'}
-kable(head(all_webnews[, c(1, 4, 5)], n = 10L),
+kable(head(webnews[, c(1, 4, 5)], n = 10L),
              caption = "Table: 10 Most Recent News Stories on Website")
 ```
 
+
 # Twitter
-
-```{r tweet time-series}
-thisWk <- as.numeric(format(today(), "%V"))
-
-twtsPerWeek <- all_twts %>% 
-  filter(Sys.Date() - as.Date(created) <= 365) %>% 
-  mutate(week = as.numeric(format(as.Date(created, origin = date.standard), "%V"))) %>% 
-  group_by(week) %>% 
-  count() %>% 
-  mutate(lag = abs(week - thisWk)) %>% 
-  arrange(lag)
-
-plot(ts(twtsPerWeek$n, start = 53 - thisWk), col = "blue", lwd = 2, 
-     main = "'@nesreanigeria' mentions over past 52 weeks")
-
-## TODO: Implement month & year transitions
-```
-
-```{r}
-
-```
-
 ```{r plain density, warning=FALSE, message=FALSE}
-simplePlot <- plain_dens_plot(data = wk_data, platform = "twitter")
+simplePlot <- dens_plot(data = wk_data, platform = "twitter")
 simplePlot +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
 ```
@@ -237,7 +228,7 @@ simplePlot +
 ggplot(wk_data, aes(created)) +
   geom_density(aes(fill = Type), alpha = .5) +
   theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-  ggtitle(paste("Distribution of tweets for", reportPeriodText)) +
+  ggtitle(paste("Distribution of tweets for", report.period)) +
   xlab("Date")
 ```
 
@@ -279,7 +270,7 @@ ggplot(fbPosts, aes(created_time)) +
 
 
 ```{r density dist: FB comments}
-plain_dens_plot(fbComments, platform = "facebook")
+dens_plot(fbComments, platform = "facebook")
 ```
  
 ```{r fb polarities}
