@@ -46,29 +46,8 @@ if (interactive()) {
 **Reporting Period:** `r report.period`.
 
 ***
-
-# Time Series
-```{r web time-series}
-make_ts(data = data$webnews, columnname = 'Date', colour = 'green')
-```
-
-```{r tweet time-series}
-make_ts(data = data$tweets, columnname = 'created', colour = 'lightblue')
-## TODO: Implement month & year transitions
-```
-
-```{r fb time-series}
-make_ts(data = data$fbposts, columnname = 'created_time')
-```
-
-
-
-
-# Summary Tables
-
-**Website**
-
-```{r website}
+<!-- Data preparations -->
+```{r web prep}
 webnews <- data$webnews
 webnews$Date <- webnews$Date %>%
   as.Date(origin = date.standard) %>%
@@ -89,18 +68,7 @@ wk_news <- webnews %>%
   filter(as.Date(Date) >= today() - 7)
 ```
 
-| **News Stories** |    **Result**                                      |
-|------------------|----------------------------------------------------|
-| All-time         | `r nrow(webnews)`                              |
-| In `r thisMth`   | `r nrow(mth_news)`                                 |
-| Last 7 days      | `r nrow(wk_news)`                                  |
-| Most recent      | `r webnews$Title[which.max(webnews$Date)]` |
-|                  |                                                    |
-
-***
-
-**Twitter**
-```{r load twitter data, message=FALSE}
+```{r twt prep, message=FALSE}
 ## Process tweets by reconverting date field to POSIXct type 
 ## and the TRUE/FALSE fields from integer to logical.
 ## These were altered upon storage in the database.
@@ -110,14 +78,14 @@ twts <- process_stored_tweets(data$tweets)
 ## out a check to see whether the database needs to be updated.
 twts$date_only <- as.Date(twts$created)
 
-wk_data <- twts %>%
+wk.data <- twts %>%
   filter(date_only >= (today() - 6) & date_only <= (today())) %>%
   arrange(date_only) %>%
   mutate(day = weekdays(date_only, abbreviate = TRUE)) %>%
   mutate(Type = ifelse(isRetweet, "Retweet", "Original"))
 
-wk_data$day <-  factor(wk_data$day,
-                       levels = unique(wk_data$day),
+wk.data$day <-  factor(wk.data$day,
+                       levels = unique(wk.data$day),
                        ordered = TRUE)
   
 last_wk <- twts %>%
@@ -125,40 +93,20 @@ last_wk <- twts %>%
 
 ## Remove characters from the text of tweets that are not human-readable, 
 ## as they would be of no practical use in the analysis.
-wk_data$text <- remove_nonreadables(wk_data$text)
+wk.data$text <- remove_nonreadables(wk.data$text)
 
 ## Some objects to be used to generate and/or display statistics
-no.wk        <- nrow(wk_data)
-month_begin  <- floor_date(today(), "month")
-month_end    <- ceiling_date(today(), "month")
-mth_data     <- filter(twts, date_only >= month_begin & date_only <= month_end)
-mostRTed     <- wk_data$text[which.max(wk_data$retweetCount)]
-mostFaved    <- wk_data$text[which.max(wk_data$favoriteCount)]
-tweets_by_us <- filter(wk_data, screenName == "NESREANigeria")
-busiest_day  <- which.max(table(wk_data$date_only))
-busiest_day  <- ymd(names(busiest_day))
+no.wk <- nrow(wk.data)
+mth.beg <- floor_date(today(), "month")
+mth.end <- ceiling_date(today(), "month")
+mth_data <- twts %>%
+  filter(date_only >= mth.beg & date_only <= mth.end)
+twts.by.nesrea <- filter(wk.data, screenName == "NESREANigeria")
+busy.day  <- which.max(table(wk.data$date_only))
+busy.day  <- ymd(names(busy.day))
 ```
 
-
-|     **Description**          |    **Result**                    |
-|------------------------------|----------------------------------|
-| In `r format(today(), "%B")` | `r nrow(mth_data)`               |
-| In last 7 days               | `r no.wk`                        |
-| Posts made                   | `r nrow(tweets_by_us)`           |
-| Mentions                     | `r nrow(wk_data)`                |
-| Daily average                | `r floor(nrow(wk_data)/7)`       |
-| Most active on               | `r format(busiest_day, "%d %B")` |
-| Most liked                   | `r mostFaved`                    |
-| Most retweeted               | `r mostRTed`                     |
-| Comparative activity         | **`r no.wk - nrow(last_wk)`**    |
-|                              |                                  |
-
-<!-- TODO: Add No. of followers (overall) & new followers (in last 7 days) -->
-
-***
-
-**Facebook**
-```{r load-fb-data, message=FALSE}
+```{r fb prep, message=FALSE}
                         ############
                         # Facebook #
                         ############
@@ -191,6 +139,124 @@ wk_Posts <- mth_Posts %>%
   filter(created_time >= (today() - 6))
 ```
 
+# Time Series
+```{r web time-series}
+make_ts(data = data$webnews, columnname = 'Date', colour = 'green')
+```
+
+```{r tweet time-series}
+make_ts(data = data$tweets, columnname = 'created', colour = 'lightblue')
+## TODO: Implement month & year transitions
+```
+
+```{r fb time-series}
+make_ts(data = data$fbposts, columnname = 'created_time')
+```
+
+# Frequency Distributions
+## Twitter
+```{r plain density, warning=FALSE, message=FALSE}
+simplePlot <- dens_plot(data = wk.data, platform = "twitter")
+simplePlot +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+```
+
+```{r daily tweets plot}  
+simplePlot +
+  facet_grid(day ~ .) +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+```
+
+```{r disaggregated tweets density}
+ggplot(wk.data, aes(created)) +
+  geom_density(aes(fill = Type), alpha = .5) +
+  theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
+  ggtitle(paste("Distribution of tweets for", report.period)) +
+  xlab("Date")
+```
+
+## Facebook
+```{r density dist: fb posts}
+ggplot(fbPosts, aes(created_time)) +
+  geom_density(fill = "purple", alpha = 0.6) +
+  ggtitle("Distribution of Facebook posts")
+```
+
+```{r density dist: FB comments}
+dens_plot(fbComments, platform = "facebook")
+```
+
+# Sentiment Analysis
+## Twitter
+```{r twitter sentiments dotchart-1}
+spl <- split(wk.data, wk.data$isRetweet)
+origTwts <- spl[['FALSE']]
+
+twPol <- compute_emotional_valence(origTwts$text)
+visualise_pol_diff(pol.list = twPol)
+```
+
+```{r twitter sentiment extremes}
+origTwts$emotionalValence <- sapply(twPol, function(x) x$all$polarity)
+```
+
+* __Most positive tweet__: `r origTwts$text[which.max(origTwts$emotionalValence)]`
+* __Most negative tweet__: `r origTwts$text[which.min(origTwts$emotionalValence)]` 
+
+```{r, twitter wordcloud}
+generate_wordcloud(origTwts, twPol, site = "Twitter")
+```
+
+## Facebook
+```{r fb polarities}
+fbPol <- compute_emotional_valence(text.var = fbComments$message)
+visualise_pol_diff(pol.list = fbPol)
+```
+  
+```{r facebook wordcloud}
+fbComments$emotionalValence <- sapply(fbPol, function(x) x$all$polarity)
+generate_wordcloud(fbComments, fbPol, site = "Facebook")
+```
+
+# Engagement
+## Twitter
+
+```{r network}
+## TODO
+RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
+```
+
+
+# Summary Tables
+**Website**
+| **News Stories** |    **Result**                                      |
+|------------------|----------------------------------------------------|
+| All-time         | `r nrow(webnews)`                              |
+| In `r thisMth`   | `r nrow(mth_news)`                                 |
+| Last 7 days      | `r nrow(wk_news)`                                  |
+| Most recent      | `r webnews$Title[which.max(webnews$Date)]` |
+|                  |                                                    |
+
+***
+
+**Twitter**
+|     **Description**          |    **Result**                                      |
+|------------------------------|----------------------------------------------------|
+| In `r format(today(), "%B")` | `r nrow(mth_data)`                                 |
+| In last 7 days               | `r no.wk`                                          |
+| Posts made                   | `r nrow(twts.by.nesrea)`                           |
+| Daily average                | `r floor(nrow(wk.data)/7)`                         |
+| Most active on               | `r format(busy.day, "%d %B")`                   |
+| Most liked                   | `r wk.data$text[which.max(wk.data$favoriteCount)]` |
+| Most retweeted               | `r wk.data$text[which.max(wk.data$retweetCount)]`  |
+| Comparative activity         | **`r no.wk - nrow(last_wk)`**                      |
+|                              |                                                    |
+
+<!-- TODO: Add No. of followers (overall) & new followers (in last 7 days) -->
+
+***
+
+**Facebook**
 |     **Description**        |    **Result**                            |
 |----------------------------|------------------------------------------|
 |NESREA Page Posts (All-time)|`r nrow(fbPosts)`                         |
@@ -203,82 +269,9 @@ wk_Posts <- mth_Posts %>%
 |Most Commented  (Overall)   |`r return_text(fbPosts, "comments_count")`|
 |                            |                                          |
 
-# Website 
-
 ```{r news summary, results='asis'}
 kable(head(webnews[, c(1, 4, 5)], n = 10L),
              caption = "Table: 10 Most Recent News Stories on Website")
 ```
 
 
-# Twitter
-```{r plain density, warning=FALSE, message=FALSE}
-simplePlot <- dens_plot(data = wk_data, platform = "twitter")
-simplePlot +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
-```
-
-```{r daily tweets plot}  
-simplePlot +
-  facet_grid(day ~ .) +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
-```
-
-```{r disaggregated tweets density}
-ggplot(wk_data, aes(created)) +
-  geom_density(aes(fill = Type), alpha = .5) +
-  theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-  ggtitle(paste("Distribution of tweets for", report.period)) +
-  xlab("Date")
-```
-
-## Sentiment Analysis
-```{r twitter sentiments dotchart-1}
-spl <- split(wk_data, wk_data$isRetweet)
-origTwts <- spl[['FALSE']]
-
-twPol <- compute_emotional_valence(origTwts$text)
-visualise_pol_diff(pol.list = twPol)
-```
-
-```{r twitter sentiment extremes}
-origTwts$emotionalValence <- sapply(twPol, function(x) x$all$polarity)
-```
-
-
-* __Most positive tweet__: `r origTwts$text[which.max(origTwts$emotionalValence)]`
-* __Most negative tweet__: `r origTwts$text[which.min(origTwts$emotionalValence)]`  
-
- 
-```{r, twitter wordcloud}
-generate_wordcloud(origTwts, twPol, site = "Twitter")
-```
-
-```{r network}
-## TODO
-RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
-```
-
-
-# Facebook
-
-```{r density dist: FB posts}
-ggplot(fbPosts, aes(created_time)) +
-  geom_density(fill = "purple", alpha = 0.6) +
-  ggtitle("Distribution of Facebook posts")
-```
-
-
-```{r density dist: FB comments}
-dens_plot(fbComments, platform = "facebook")
-```
- 
-```{r fb polarities}
-fbPol <- compute_emotional_valence(text.var = fbComments$message)
-visualise_pol_diff(pol.list = fbPol)
-```
-  
-```{r facebook wordcloud}
-fbComments$emotionalValence <- sapply(fbPol, function(x) x$all$polarity)
-generate_wordcloud(fbComments, fbPol, site = "Facebook")
-```
