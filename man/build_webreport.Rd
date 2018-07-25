@@ -4,16 +4,16 @@
 \alias{build_webreport}
 \title{Build a report from a source file}
 \usage{
-build_webreport(data.source, outfile = NULL, launch.file = TRUE, ...)
+build_webreport(data.source, launch = TRUE, ...)
 }
 \arguments{
 \item{data.source}{A database file containing web data}
 
+\item{...}{Additional arguments passed to \code{rmarkdown::render()}.}
+
 \item{outfile}{The path of the built document.}
 
 \item{launch.file}{logical; whether to automatically open built document}
-
-\item{...}{Additional arguments passed to \code{rmarkdown::render()}.}
 }
 \value{
 This function has no return value. The result of the operation is

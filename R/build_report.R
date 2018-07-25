@@ -35,7 +35,7 @@
 #' @importFrom rmarkdown render
 #'
 #' @export
-build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...)
+build_webreport <- function(data.source, launch = TRUE, ...)
 {
   ## Validation of argument for the path to the database
   if (missing(data.source) || !inherits(data.source, "character"))
@@ -52,23 +52,6 @@ build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...
   if (header != 'SQLite format 3')
     stop("'data.source' should be an SQLite database.")
 
-  ## Validation/creation of output filepath
-  ms.word <- ".docx"
-  if (is.null(outfile)) {
-    outfile <-
-    tempfile(paste0("report_", format(Sys.time(), '%Y%m%d_%H%M%S')),
-             tmpdir = ".", fileext = ms.word)
-  }
-  else {
-    outfile <- as.character(outfile)
-    if (!endsWith(tolower(outfile), ms.word))
-      outfile <- paste0(outfile, ms.word)
-
-      ## Check for...
-      dupl.dots <- "\\.{2,}"
-      if (grepl(dupl.dots, outfile))
-        outfile <- gsub(dupl.dots, ".", outfile)
-  }
   template <-
     system.file(
       "rmarkdown/templates/reports/skeleton/skeleton.Rmd",
@@ -76,15 +59,14 @@ build_webreport <- function(data.source, outfile = NULL, launch.file = TRUE, ...
       mustWork = TRUE
     )
   data <- provideInternalData(data.source)
-  rmarkdown::render(
-    input = template,
-    output_format = "word_document",
-    output_file = outfile,
-    output_dir = dirname(outfile),
-    params = list(data = data)
-  )
-  if (launch.file)
-    try(system2("open", args = outfile, invisible = FALSE))
-  message(paste("Report has been saved to",
-                sQuote(dirname(normalizePath(outfile)))))
+  outfile <-
+    rmarkdown::render(input = template, params = list(data = data), ...)
+  if (launch)
+    tryCatch(
+      system2("open", args = outfile, invisible = FALSE),
+      finally = message(paste(
+        "Report has been saved to",
+        sQuote(dirname(normalizePath(outfile)))
+      ))
+    )
 }

@@ -2,7 +2,9 @@
 title: "Weekly Web & Social Media Report"
 author: "Press Unit"
 output:
-  word_document: default
+  pdf_document
+  word_document
+  html_document
 params:
   data: ""
 ---
