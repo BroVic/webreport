@@ -38,29 +38,28 @@
 build_webreport <- function(data.source, launch = TRUE, ...)
 {
   ## Validation of argument for the path to the database
-  if (missing(data.source) || !inherits(data.source, "character"))
-    stop("A valid path for 'data.source' must be provided.")
-  else {
-    data.source <- suppressWarnings(normalizePath(data.source))
-    if (!file.exists(data.source))
-      stop("No file", sQuote(data.source))
-  }
+  if (missing(data.source) || !file.exists(data.source))
+    stop("A valid path for 'data.source' must be provided")
+  data.source <- suppressWarnings(normalizePath(data.source))
 
+  ## Import data into R after confirming that it's an SQLite file
   file.con <- file(data.source, 'rb')
   header <- readBin(file.con, character(), endian = 'big', size = 16)
   on.exit(close(file.con))
   if (header != 'SQLite format 3')
     stop("'data.source' should be an SQLite database.")
-
-  template <-
-    system.file(
-      "rmarkdown/templates/reports/skeleton/skeleton.Rmd",
-      package = "webreport",
-      mustWork = TRUE
-    )
   data <- provideInternalData(data.source)
+
+  ## Use package's .Rmd skeleton to build the report
   outfile <-
-    rmarkdown::render(input = template, params = list(data = data), ...)
+    rmarkdown::render(
+      input = system.file(
+        "rmarkdown/templates/reports/skeleton/skeleton.Rmd",
+        package = "webreport",
+        mustWork = TRUE),
+      params = list(data = data),
+      ...
+    )
   if (launch)
     tryCatch(
       system2("open", args = outfile, invisible = FALSE),
