@@ -1,6 +1,7 @@
 ---
 title: "Weekly Web & Social Media Report"
 author: "Press Unit"
+date: "`r format(Sys.Date(), '%A, %d %B %Y') `"
 output:
   pdf_document
   word_document
@@ -25,10 +26,6 @@ getwd()
 ```
 
 ```{r setup data frames, message=FALSE, include=FALSE}
-date.standard <- "1970-01-01"
-report.period <- 
-  paste(format(today() - 6, "%d %B"), "to", format(today(), "%d %B %Y"))
-
 ## Load the data
 if (interactive()) {
   proj <- rstudioapi::getActiveProject()
@@ -44,13 +41,11 @@ if (interactive()) {
   data <- params$data
 ```
 
-
-**Reporting Period:** `r report.period`.
-
-***
 <!-- Data preparations -->
 ```{r web prep}
 webnews <- data$webnews
+date.standard <- "1970-01-01"
+
 webnews$Date <- webnews$Date %>%
   as.Date(origin = date.standard) %>%
   as.POSIXct()
