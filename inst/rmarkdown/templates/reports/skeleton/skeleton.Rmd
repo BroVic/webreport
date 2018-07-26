@@ -41,11 +41,13 @@ if (interactive()) {
   data <- params$data
 ```
 
-<!-- Data preparations -->
+*Period:* 
+`r paste(format(Sys.Date() - 6, "%d %B"), "to", format(Sys.Date(), "%d %B %Y"))`
+
 ```{r web prep}
-webnews <- data$webnews
 date.standard <- "1970-01-01"
 
+webnews <- data$webnews
 webnews$Date <- webnews$Date %>%
   as.Date(origin = date.standard) %>%
   as.POSIXct()
@@ -168,7 +170,7 @@ simplePlot +
 ggplot(wk.data, aes(created)) +
   geom_density(aes(fill = Type), alpha = .5) +
   theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-  ggtitle(paste("Distribution of tweets for", report.period)) +
+  ggtitle(paste("Distribution of tweets")) +
   xlab("Date")
 ```
 

@@ -57,15 +57,16 @@ build_webreport <- function(data.source, launch = TRUE, ...)
         "rmarkdown/templates/reports/skeleton/skeleton.Rmd",
         package = "webreport",
         mustWork = TRUE),
+      output_dir = getwd(),
       params = list(data = data),
-      ...
-    )
-  if (launch)
-    tryCatch(
-      system2("open", args = outfile, invisible = FALSE),
-      finally = message(paste(
-        "Report has been saved to",
-        sQuote(dirname(normalizePath(outfile)))
-      ))
-    )
+      ...)
+  message(paste("Report has been saved to", sQuote(dirname(outfile))))
+  newname <- sub('(skeleton)(\\.)',
+                 paste0('report_', Sys.Date(), '\\2'),
+                 outfile)
+  if (!file.rename(outfile, newname))
+    warning('Failed to rename the file')
+  else
+    if (launch)
+      try(system2("open", args = newname, invisible = FALSE))
 }
