@@ -57,7 +57,6 @@ build_webreport <- function(data.source, launch = TRUE, ...)
         "rmarkdown/templates/reports/skeleton/skeleton.Rmd",
         package = "webreport",
         mustWork = TRUE),
-      output_dir = getwd(),
       params = list(data = data),
       ...)
   message(paste("Report has been saved to", sQuote(dirname(outfile))))

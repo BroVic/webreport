@@ -27,18 +27,7 @@ getwd()
 
 ```{r setup data frames, message=FALSE, include=FALSE}
 ## Load the data
-if (interactive()) {
-  proj <- rstudioapi::getActiveProject()
-  this <- "webreport"
-  if (identical(basename(proj), this) & !(this %in% loadedNamespaces())) {
-    devtools::load_all()
-    if (!Sys.info()['nodename'] == "SA-DG")
-      stop("That operation is restricted. Please run non-interactively.")
-  }
- data <- 
-   provideInternalData("../../../../../../NESREA_social/data/nesreanigeria.db")
-} else
-  data <- params$data
+data <- params$data
 ```
 
 *Period:* 
