@@ -129,16 +129,17 @@ wk_Posts <- mth_Posts %>%
 
 # Time Series
 ```{r web time-series}
-make_ts(data = data$webnews, columnname = 'Date', colour = 'green')
+useBase <- FALSE
+make_ts(data = data$webnews, date.col = 'Date', base = useBase, col = 'green')
 ```
 
 ```{r tweet time-series}
-make_ts(data = data$tweets, columnname = 'created', colour = 'lightblue')
+make_ts(data = data$tweets, date.col = 'created', base = useBase, col = 'lightblue')
 ## TODO: Implement month & year transitions
 ```
 
 ```{r fb time-series}
-make_ts(data = data$fbposts, columnname = 'created_time')
+make_ts(data = data$fbposts, date.col = 'created_time', base = useBase, col = 'darkblue')
 ```
 
 # Frequency Distributions
@@ -216,35 +217,30 @@ RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
 
 
 # Summary Tables
-**Website**
-| **News Stories** |    **Result**                                      |
-|------------------|----------------------------------------------------|
-| All-time         | `r nrow(webnews)`                              |
-| In `r thisMth`   | `r nrow(mth_news)`                                 |
-| Last 7 days      | `r nrow(wk_news)`                                  |
+## Website
+| **News Stories** |    **Result**                              |
+|------------------|--------------------------------------------|
+| All-time         | `r nrow(webnews)`                          |
+| In `r thisMth`   | `r nrow(mth_news)`                         |
+| Last 7 days      | `r nrow(wk_news)`                          |
 | Most recent      | `r webnews$Title[which.max(webnews$Date)]` |
-|                  |                                                    |
+|                  |                                            |
 
-***
-
-**Twitter**
+## Twitter
 |     **Description**          |    **Result**                                      |
 |------------------------------|----------------------------------------------------|
 | In `r format(today(), "%B")` | `r nrow(mth_data)`                                 |
 | In last 7 days               | `r no.wk`                                          |
 | Posts made                   | `r nrow(twts.by.nesrea)`                           |
 | Daily average                | `r floor(nrow(wk.data)/7)`                         |
-| Most active on               | `r format(busy.day, "%d %B")`                   |
+| Most active on               | `r format(busy.day, "%d %B")`                      |
 | Most liked                   | `r wk.data$text[which.max(wk.data$favoriteCount)]` |
 | Most retweeted               | `r wk.data$text[which.max(wk.data$retweetCount)]`  |
 | Comparative activity         | **`r no.wk - nrow(last_wk)`**                      |
 |                              |                                                    |
-
 <!-- TODO: Add No. of followers (overall) & new followers (in last 7 days) -->
 
-***
-
-**Facebook**
+## Facebook
 |     **Description**        |    **Result**                            |
 |----------------------------|------------------------------------------|
 |NESREA Page Posts (All-time)|`r nrow(fbPosts)`                         |
@@ -256,10 +252,3 @@ RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
 |Most Shared in `r thisMth`  |`r return_text(mth_Posts, "shares_count")`|
 |Most Commented  (Overall)   |`r return_text(fbPosts, "comments_count")`|
 |                            |                                          |
-
-```{r news summary, results='asis'}
-kable(head(webnews[, c(1, 4, 5)], n = 10L),
-             caption = "Table: 10 Most Recent News Stories on Website")
-```
-
-

@@ -8,6 +8,6 @@ test_that('input is validated', {
                'inherits(data, "data.frame") is not TRUE',
                fixed = TRUE)
   expect_error(make_ts(mtcars),
-               "argument \"columnname\" is missing, with no default")
+               "argument \"date.col\" is missing, with no default")
   expect_error(make_ts())
 })

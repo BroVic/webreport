@@ -4,16 +4,20 @@
 \alias{make_ts}
 \title{Plot Weekly Time-Series Data For Online Platforms}
 \usage{
-make_ts(data, columnname, colour = "blue")
+make_ts(data, date.col, base = TRUE, colour, pt = 2L)
 }
 \arguments{
 \item{data}{An object of class \code{data.frame}}
 
-\item{columnname}{A character string representing Date-Time values, or values
+\item{date.col}{A character string representing Date-Time values, or values
 that can be coerced to Date-Time values.}
+
+\item{base}{Logical; whether to create a base plot or a ggplot.}
 
 \item{colour}{A character string giving a valid R built-in colour as
 represented in \code{\link[grDevices]{colors}}.}
+
+\item{pt}{An integer value represeting the weight of the line. Defaults to 2L.}
 }
 \value{
 A base time-series plot.
