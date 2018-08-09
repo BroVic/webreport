@@ -4,23 +4,22 @@
 \alias{make_ts}
 \title{Plot Weekly Time-Series Data For Online Platforms}
 \usage{
-make_ts(data, date.col, base = TRUE, colour, pt = 2L)
+make_ts(data, platform, base = TRUE, pt = 2L)
 }
 \arguments{
 \item{data}{An object of class \code{data.frame}}
 
-\item{date.col}{A character string representing Date-Time values, or values
-that can be coerced to Date-Time values.}
+\item{platform}{A character string, with the name of the chosein online
+platform. Options are Facebook, Twitter and Website.}
 
 \item{base}{Logical; whether to create a base plot or a ggplot.}
-
-\item{colour}{A character string giving a valid R built-in colour as
-represented in \code{\link[grDevices]{colors}}.}
 
 \item{pt}{An integer value represeting the weight of the line. Defaults to 2L.}
 }
 \value{
-A base time-series plot.
+Has no return value per se. It results in the production of a
+time-series plot (either a base \code{graphics} or a \link{ggplot}
+type of plot.
 }
 \description{
 Uses locally stored data from Website, Facebook and Twitter profiles to plot

@@ -130,16 +130,16 @@ wk_Posts <- mth_Posts %>%
 # Time Series
 ```{r web time-series}
 useBase <- FALSE
-make_ts(data = data$webnews, date.col = 'Date', base = useBase, col = 'green')
+make_ts(data = data$webnews, platform = 'website', base = useBase)
 ```
 
 ```{r tweet time-series}
-make_ts(data = data$tweets, date.col = 'created', base = useBase, col = 'lightblue')
+make_ts(data = data$tweets, platform = 'twitter', base = useBase)
 ## TODO: Implement month & year transitions
 ```
 
 ```{r fb time-series}
-make_ts(data = data$fbposts, date.col = 'created_time', base = useBase, col = 'darkblue')
+make_ts(data = data$fbposts, platform = 'facebook', base = useBase)
 ```
 
 # Frequency Distributions
