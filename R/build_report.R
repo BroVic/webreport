@@ -5,8 +5,7 @@
 #' data previously stored in a local database.
 #'
 #' @param data.source A database file containing web data
-#' @param outfile The path of the built document.
-#' @param launch.file logical; whether to automatically open built document
+#' @param launch logical; whether to automatically open built document
 #' @param ... Additional arguments passed to \code{rmarkdown::render()}.
 #'
 #' @details \emph{data.source} refers to a SQLite file (internally) wherein
