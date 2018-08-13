@@ -51,7 +51,8 @@ download_all_data <- function(keyword, data.store)
 #' @param dbfile A path to a database file.
 #'
 #' @details This function is a enables the display of all the tables in the
-#' database in the spreadsheet-like format prrovided by \link{[utils]{View}}.
+#' database in the spreadsheet-like format prrovided by
+#' \code{\link{[utils]View}}.
 #'
 #' @import utils
 #' @export
@@ -60,13 +61,13 @@ show_datasets <- function(dbfile)
   if (!file.exists(dbfile))
     stop('File', sQuote(dbfile), 'does not exist')
   dt <- provideInternalData(dbfile)
+
+  ## Iterate through list of data frames
   for(i in seq_along(dt)) {
     df <- dt[[i]]
     name <- names(dt)[i]
-
-    if (is.null(df))
-      warning(nam, 'has no data')
-
+    if (is.null(df) || !nrow(df))
+      warning(name, 'has no data')
     View(df, title = name)
   }
 }
