@@ -9,11 +9,9 @@ build_webreport(data.source, launch = TRUE, ...)
 \arguments{
 \item{data.source}{A database file containing web data}
 
+\item{launch}{logical; whether to automatically open built document}
+
 \item{...}{Additional arguments passed to \code{rmarkdown::render()}.}
-
-\item{outfile}{The path of the built document.}
-
-\item{launch.file}{logical; whether to automatically open built document}
 }
 \value{
 This function has no return value. The result of the operation is

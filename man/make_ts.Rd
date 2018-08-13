@@ -18,8 +18,8 @@ platform. Options are Facebook, Twitter and Website.}
 }
 \value{
 Has no return value per se. It results in the production of a
-time-series plot (either a base \code{graphics} or a \link{ggplot}
-type of plot.
+time-series plot (either a base \code{graphics} or a
+\code{\link[ggplot2]{ggplot}} type of plot.
 }
 \description{
 Uses locally stored data from Website, Facebook and Twitter profiles to plot

@@ -1,12 +1,10 @@
 Package: webreport
 Title: Reporting on Social Media and Websites Made Easy
-Version: 0.2.0.9009
+Version: 0.2.0.9010
 Authors@R: person("Victor", "Ordu", email = "victorordu@outlook.com",
     role = c("aut", "cre"))
 Description: Build reports from social media and website data.
-Depends:
-    R (>= 3.4),
-    SnowballC (>= 0.5.1)
+Depends: R (>= 3.4)
 Imports: 
     RColorBrewer (>= 1.1.2),
     RSQLite (>= 2.0),

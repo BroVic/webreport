@@ -52,7 +52,7 @@ download_all_data <- function(keyword, data.store)
 #'
 #' @details This function is a enables the display of all the tables in the
 #' database in the spreadsheet-like format prrovided by
-#' \code{\link{[utils]View}}.
+#' \code{\link[utils]{View}}.
 #'
 #' @import utils
 #' @export
