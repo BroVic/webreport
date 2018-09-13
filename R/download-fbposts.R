@@ -29,7 +29,7 @@ download_fb <- function(keyword, dBase)
             feed = TRUE)
   dbWriteTable(sql.conn, paste0(keyword, "_fbposts"), posts, overwrite = TRUE)
   cat("from Newsfeed were stored\n")
-  store_post_details(keyword, sql.conn, posts)
+  storePostDetails(keyword, sql.conn, posts)
   cat("Checking for and fixing duplications... ")
   tbls <- dbListTables(sql.conn)
   tbls <- tbls[grepl("fb", tbls)]
