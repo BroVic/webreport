@@ -51,19 +51,16 @@ globalVariables(c("value", "end_time"))
 
 
 
-## Prepare Downloaded Facebook Data for further Processing.
-prepare_data <- function(df)
+## Prepare downloaded Facebook posts for further processing (S3 method)
+prepare.default <- function(x)
 {
-  cnames <-
     c("from_id", "from_name", "message", "created_time", "type", "link",
       "id", "story", "likes_count", "comments_count", "shares_count")
-  if (!identical(colnames(df), cnames))
-    stop("Loaded data are not compatible with this function")
-  df$type <- as.factor(df$type)
-  df$created_time <- gsub("T", " ", df$created_time)
-  df$created_time <- gsub("\\+", " \\+", df$created_time)
-  df$created_time <- as.POSIXct(df$created_time)
-  df
+  if (!identical(colnames(x), cnames))
+    stop("These are not data from Facebook posts compatible with this version")
+  x$type <- as.factor(x$type)
+  x$created_time <- as.Date(x$created_time)
+  x
 }
 
 
@@ -83,7 +80,7 @@ prepare_data <- function(df)
 #' @importFrom dplyr mutate
 #' @importFrom utils txtProgressBar
 #' @importFrom utils setTxtProgressBar
-store_post_details <- function(keyword, conn, data)
+storePostDetails <- function(keyword, conn, data)
 {
   ## Pick an ID and use it to download details related to a particular post
   ## This function takes a while, so it's good to keep users abreast on

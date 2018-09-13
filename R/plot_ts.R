@@ -1,5 +1,4 @@
 # plot_ts.R
-
 globalVariables(c('.', 'week'))
 
 #' Plot Weekly Time-Series Data For Online Platforms
@@ -32,36 +31,40 @@ globalVariables(c('.', 'week'))
 make_ts <- function(data, platform, base = TRUE, pt = 2L) {
   stopifnot(inherits(data, 'data.frame'))
   stopifnot(is.character(platform))
+  ps <- platformSpecs(data, platform)
+  res <- prepare(
+    DATA = ps,
+    sender = 'NESREANigeria'
+  )
+  tsObj <-
+    ts(
+      data = res,
+      start = c(2016, 12),
+      end = c(2018, 8),
+      frequency = 12
+    )
 
-  ## Extract platform-specific values
-  specs    <- .preparePlatformSpecifics(platform, data)
-  data     <- specs$data
-  date.col <- specs$date.column
-  colour   <- specs$colour
-  tt       <- specs$title.stub
-  this.wk  <- as.numeric(format(Sys.Date(), "%V"))
-
-  updates.by.wk <- data %>%
-    filter(as.name(eval(date.col)) >= (Sys.Date() - 365)) %>%
-    mutate(week = as.numeric(format(data[[date.col]], "%V"))) %>%
-    group_by(week) %>%
-    count() %>%
-    mutate(lag = abs(week - this.wk)) %>%
-    arrange(lag)
-
-  tt <- paste(tt, "over past 52 weeks")
   if (base) {
+    dayStart <- -365
     plot(
-      ts(updates.by.wk$n, start = 53 - this.wk),
-      lwd = pt,
-      main = tt,
-      col = colour
+      window(
+        tsObj,
+        start = c(
+          numericalDateElem('%Y', dayStart),
+          numericalDateElem('%m', dayStart)
+        ),
+        end = c(numericalDateElem('%Y'), numericalDateElem('%m'))
+      ),
+      plot.type = 'single',
+      col = c(ps$colour, 'red'),
+      lwd = 2,
+      main = ps$title.stub
     )
   }
   else {
     print(ggplot(updates.by.wk, aes(week, n)) +
             geom_line(colour = colour, size = pt) +
-            ggtitle(tt))
+            ggtitle(ps$title.stub))
   }
 }
 
@@ -74,39 +77,13 @@ make_ts <- function(data, platform, base = TRUE, pt = 2L) {
 
 
 
-## Prepares internal variables for 'make_ts' depending on the online platform
-#' @importFrom dplyr %>%
-#' @importFrom dplyr filter
-.preparePlatformSpecifics <- function(x, DATA)
-{
-  stopifnot(is.data.frame(DATA))
-  stopifnot(exprs = {
-    is.character(x)
-    length(x) > 0
-  })
-  x <- tolower(x[1L])
-  origin <- "1970-01-01"
-  col <- c(twitter = 'lightblue', facebook = 'darkblue', website = 'darkgreen')
-  if (x %in% 'twitter') {
-    var <- 'created'
-    DATA[[var]] <- DATA[[var]] %>%
-      { as.Date(as.POSIXct(., origin = origin)) }
-    tt <- "Twitter mentions"
-    col <- col['twitter']
-  }
-  else if (x %in% 'facebook') {
-    var <- 'created_time'
-    DATA[[var]] <- as.Date(DATA[[var]])
-    tt <- 'Facebook posts'
-    col <- col['facebook']
-  }
-  else if (x %in% 'website') {
-    var <- 'Date'
-    DATA[[var]] <- as.Date(DATA[[var]], origin = origin)
-    tt <- 'Website uploads'
-    col <- col['website']
-  }
-  else
-    stop(sQuote(x), ' is not a supported platform')
-  list(data = DATA, date.column = var, title.stub = tt, colour = col)
+
+## Gets the numerical value for a given element of a Date object
+.numericalDateElem <- function(placeholder, dif = 0) {
+  stopifnot(is.character(placeholder), grepl('^%[A-Za-z]{1}', placeholder))
+  if (!is.numeric(dif) & !is.integer(dif))
+    stop("'dif' should be a number")
+  if (abs(dif) > 365)
+    warning('You have elected to pick a time frame larger than 1 year')
+  as.numeric(format(Sys.Date() + dif, placeholder))
 }

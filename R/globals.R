@@ -216,3 +216,13 @@ remove_nonreadables <- function(string = NULL) {
   nu.str <- gsub("[^[:graph:]]", " ", string)
   str_trim(nu.str)
 }
+
+
+
+
+
+
+
+# S3 generic for data preprocessing
+prepare <- function(x, ...)
+  UseMethod("prepare")
