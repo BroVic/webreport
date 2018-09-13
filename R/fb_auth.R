@@ -39,7 +39,11 @@ fetch_token <- function()
     }
     else {
       message("Your Facebook access token has expired or is non-existent.")
-      message("Run 'renew_fb_cred' to get a new one (Admin role required).")
+	  txt <- if (interactive())
+	      'renew_fb_cred'
+        else
+          'Rscript -e "renew_fb_cred()"'		
+      message("Run", txt, "to get a new one (Admin role required).")
       return(NULL)
     }
     if (identical(val, 1L)) {
