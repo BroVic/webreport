@@ -101,10 +101,10 @@ busy.day  <- ymd(names(busy.day))
 ## Load data on Facebook Page posts from database;
 ## also do a little data wrangling
 fbPosts <- data$fbposts %>%
-  prepare_data(.) %>%
+  prepare() %>%
   select(message:shares_count) %>%
-  mutate(created_mth = format(as.Date(created_time), "%B")) %>%
-  mutate(created_yr = format(as.Date(created_time), "%Y"))
+  mutate(created_mth = format(created_time, "%B")) %>%
+  mutate(created_yr = format(created_time, "%Y"))
 
 fbComments <- params$data$fbcomments
 fbLikes <- params$data$fblikes
