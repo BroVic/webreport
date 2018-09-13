@@ -12,41 +12,73 @@ test_that('input is validated', {
   expect_error(make_ts())
 })
 
+dat <- readRDS('test-data/ntweets.rds')
+result <- platformSpecs(dat, 'twitter')
+df <- result$data
 test_that('platform specific variables are set', {
-  dat <- readRDS('test-data/ntweets.rds')
-
-  expect_error(.preparePlatformSpecifics(),
+  expect_error(platformSpecs(),
                'argument "DATA" is missing, with no default')
-  expect_error(.preparePlatformSpecifics(999),
-               'argument "DATA" is missing, with no default')
-  expect_error(.preparePlatformSpecifics(x = 999, DATA = dat),
+  expect_error(platformSpecs(999),
+               'inherits(DATA, "data.frame") is not TRUE',
+               fixed = TRUE)
+  expect_error(platformSpecs(x = 999, DATA = dat),
                'is.character\\(x\\) is not TRUE')
-  expect_error(.preparePlatformSpecifics(x = character(0), DATA = dat),
+  expect_error(platformSpecs(x = character(0), DATA = dat),
                "length(x) > 0 is not TRUE",
                fixed = TRUE)
+  expect_error(platformSpecs(data.frame(a = letters, b = LETTERS), 'twitter'),
+               "do not know how to convert 'DATA[[var]]' ",
+               fixed = TRUE)
   expect_error(
-    .preparePlatformSpecifics('twitter', data.frame(a = letters, b = LETTERS)),
-    "do not know how to convert '.' ",
-    fixed = TRUE)
-  expect_error(
-    .preparePlatformSpecifics('twitter',
-                              DATA = data.frame(a = letters, created = LETTERS)),
-    'character string is not in a standard unambiguous format')
-  expect_error(.preparePlatformSpecifics('unsupported', DATA = dat),
+    platformSpecs(DATA = data.frame(a = letters, created = LETTERS), 'twitter'),
+    'character string is not in a standard unambiguous format'
+  )
+  expect_error(platformSpecs(DATA = dat, 'unsupported'),
                "is not a supported platform",
                fixed = TRUE)
+
   ## Success checks
-  result <- .preparePlatformSpecifics('twitter', dat)
   expect_type(result, 'list')
-  expect_is(result, 'list')
+  expect_is(result, 'platformSpecs')
   expect_is(result$data, 'data.frame')
-  expect_type(result$date.column, 'character')
+  expect_type(result$date.colName, 'character')
   expect_type(result$title.stub, 'character')
   expect_type(result$colour, 'character')
   expect_null(result$noexist)
 
   ## Inspect the data frame
-  df <- result$data
   expect_equal(ncol(df), 16L)
   expect_true(nrow(df) > 0)
+})
+
+test_that('numerical values for date elements are correctly computed', {
+  expect_error(.numericalDateElem())
+  expect_error(.numericalDateElem(placeholder = 0))
+  expect_error(.numericalDateElem(placeholder = 'error'))
+  expect_warning(.numericalDateElem(placeholder = '%yy'))
+  expect_error(.numericalDateElem(placeholder = '%b', dif = 'dif'))
+
+  val <- .numericalDateElem('%Y')
+  expect_type(val, 'double')
+  expect_is(val, 'numeric')
+  expect_equal(val, as.numeric(format(Sys.Date(), '%Y')))
+})
+
+test_that('matrix for time series is successfully created', {
+  expect_error(prepare(specs = result))
+  expect_error(prepare(sender = 'ecomsaoauife'))
+  expect_error(
+    prepare(mtcars, 'NESREANigeria'),
+    "unused argument (\"NESREANigeria\")",
+    fixed = TRUE
+  )
+  # expect_error(prepare(df, 'nonexistent'),
+  #              "'sender' was not found in the dataset")
+
+  ## Success test cases
+  output <- prepare(result, 'ecomsaoauife')
+  expect_type(output, 'integer')
+  expect_is(output, 'matrix')
+  expect_equal(dim(output)[2], 2L)
+  expect_identical(colnames(output), c('allUpdates', 'bySender'))
 })
