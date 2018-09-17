@@ -1,6 +1,6 @@
 # platform-specs.R
 
-# TODO: Introduce inheritance: SocialMediaData<----Platforms
+# TODO: Introduce inheritance: SocialMediaData ----> Platforms
 
 ## Constructor for an (internal) S3 object that contains additional
 ## details specific to a given online or social media platform
@@ -53,41 +53,46 @@ platformSpecs <- function(DATA, x)
 ## To be used for time-series analysis.
 #' @import dplyr
 prepare.platformSpecs <- function(x, sender) {
-  stopifnot(inherits(x, 'platformSpecs'))
   stopifnot(is.character(sender))
   sender <- sender[1]
-  data <- if (tolower(x$name) == 'twitter')
-    mutate(x$data, bySender = screenName == sender)
-  else x$data    # TODO: Create cases for Facebook & Website (no, classes!)
-
-  ## Aggregate the number of updates of 'sender'
-  ## by the date and extract the column
   dc <- x$date.colName
-  updatesBySender <- data %>%
-    rename(day = dc) %>%
-    group_by(day) %>%
-    summarise(bySender = sum(bySender)) %>%
-    select(bySender)
+  data <- x$data
+  isTwitter <- tolower(x$name) == 'twitter'
+  if (isTwitter) {
+    data <- data %>% mutate(bySender = screenName == sender)
+    # TODO: Create cases for Facebook & Website (no, classes!)
+
+    ## Aggregate the number of updates of 'sender'
+    ## by the date and extract the column
+    updatesBySender <- data %>%
+      rename(day = dc) %>%
+      group_by(day) %>%
+      summarise(bySender = sum(bySender)) %>%
+      select(bySender)
+  }
 
   ## Find days with zero status updates
   ## which would be missing from the
   ## original data frame
   Zeros <- 0L
-  zeroUpdateDays <- data[[dc]] %>%
-  {
-    seq(min(.), max(.), by = 'day')
-  } %>%
+  zeroUpdateDays <-
+    data[[dc]] %>%
+    { seq(min(.), max(.), by = 'day') } %>%
     base::setdiff(data[[dc]]) %>%
     as_tibble() %>%
     rename(day = value) %>%
     mutate(n = Zeros) %>%
-    mutate(bySender = Zeros)
-
-  data %>%
+    { .['day'] <- as.Date(.$day, origin ='1970-01-01') } %>%
+    as_tibble()
+  if (isTwitter)
+    zeroUpdateDays <- zeroUpdateDays %>% mutate(bySender = Zeros)
+  data <- data %>%
     rename(day = dc) %>%
     group_by(day) %>%
-    count() %>%
-    bind_cols(updatesBySender) %>%
+    count()
+  if (isTwitter)
+    data <- data %>% bind_cols(updatesBySender)
+  data %>%
     bind_rows(zeroUpdateDays) %>%
     arrange(day) %>%
     as.data.frame() %>%

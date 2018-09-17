@@ -2,10 +2,7 @@
 title: "Weekly Web & Social Media Report"
 author: "Press Unit"
 date: "`r format(Sys.Date(), '%A, %d %B %Y') `"
-output:
-  pdf_document
-  word_document
-  html_document
+output: word_document
 params:
   data: ""
 ---
@@ -129,7 +126,7 @@ wk_Posts <- mth_Posts %>%
 
 # Time Series
 ```{r web time-series}
-useBase <- FALSE
+useBase <- TRUE
 make_ts(data = data$webnews, platform = 'website', base = useBase)
 ```
 
