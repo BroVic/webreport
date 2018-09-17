@@ -54,8 +54,20 @@ globalVariables(c("value", "end_time"))
 ## Prepare downloaded Facebook posts for further processing (S3 method)
 prepare.default <- function(x)
 {
-    c("from_id", "from_name", "message", "created_time", "type", "link",
-      "id", "story", "likes_count", "comments_count", "shares_count")
+  cnames <-
+    c(
+      "from_id",
+      "from_name",
+      "message",
+      "created_time",
+      "type",
+      "link",
+      "id",
+      "story",
+      "likes_count",
+      "comments_count",
+      "shares_count"
+    )
   if (!identical(colnames(x), cnames))
     stop("These are not data from Facebook posts compatible with this version")
   x$type <- as.factor(x$type)

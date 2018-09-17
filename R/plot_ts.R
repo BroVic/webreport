@@ -32,10 +32,7 @@ make_ts <- function(data, platform, base = TRUE, pt = 2L) {
   stopifnot(inherits(data, 'data.frame'))
   stopifnot(is.character(platform))
   ps <- platformSpecs(data, platform)
-  res <- prepare(
-    DATA = ps,
-    sender = 'NESREANigeria'
-  )
+  res <- prepare(ps,'NESREANigeria')
   tsObj <-
     ts(
       data = res,
@@ -45,15 +42,15 @@ make_ts <- function(data, platform, base = TRUE, pt = 2L) {
     )
 
   if (base) {
-    dayStart <- -365
+    startDate <- -365
     plot(
       window(
         tsObj,
         start = c(
-          numericalDateElem('%Y', dayStart),
-          numericalDateElem('%m', dayStart)
+          .numericalDateElem('%Y', startDate),
+          .numericalDateElem('%m', startDate)
         ),
-        end = c(numericalDateElem('%Y'), numericalDateElem('%m'))
+        end = c(.numericalDateElem('%Y'), .numericalDateElem('%m'))
       ),
       plot.type = 'single',
       col = c(ps$colour, 'red'),
@@ -62,9 +59,10 @@ make_ts <- function(data, platform, base = TRUE, pt = 2L) {
     )
   }
   else {
-    print(ggplot(updates.by.wk, aes(week, n)) +
-            geom_line(colour = colour, size = pt) +
-            ggtitle(ps$title.stub))
+    message("Other plotting formats not yet implemented")
+    # print(ggplot(updates.by.wk, aes(week, n)) +
+    #         geom_line(colour = colour, size = pt) +
+    #         ggtitle(ps$title.stub))
   }
 }
 
