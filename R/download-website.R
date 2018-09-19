@@ -49,7 +49,8 @@ download_website <- function(database)
   dbDisconnect(db)
   if (dbIsValid(db)) {
     cat("Database was not disconnected.")
-  } else
+  }
+  else
     cat("DONE\n")
 }
 
@@ -71,19 +72,19 @@ download_website <- function(database)
 #' @importFrom rvest html_text
 scrape_items <- function(page, selector, verbose = FALSE) {
   if (verbose)
-    cat("Scraping data linked to the", sQuote(selector), "CSS selector.....")
+    cat("Scraping data linked to the", sQuote(selector), "CSS selector... ")
 
   txt <- html_nodes(page, selector)
   txt <- html_text(txt)
 
   if (!length(txt)) {
-    if (verbose) {
-      cat("NO DATA")
-    }
-    warning("It is likely that a wrong CSS selector was used")
-  } else {
     if (verbose)
-      cat("DONE\n")
+      cat("NO DATA")
+    warning("It is likely that a wrong CSS selector was used")
+  }
+  else {
+    if (verbose)
+      cat("Done\n")
     txt
   }
 }

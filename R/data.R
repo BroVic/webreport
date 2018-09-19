@@ -1,3 +1,6 @@
+# data.R
+# General functions related to the data relevant to the package
+
 #' Download Data in General
 #'
 #' Downloads data from all the relevant website and social media platforms.
@@ -34,5 +37,37 @@ download_all_data <- function(keyword, data.store)
     message(sprintf(
       "Web scraping for keyword '%s' is not yet supported.", keyword
     ))
+  }
+}
+
+
+
+
+
+#' Display Datasets
+#'
+#' Present the data for inspection
+#'
+#' @param dbfile A path to a database file.
+#'
+#' @details This function is a enables the display of all the tables in the
+#' database in the spreadsheet-like format prrovided by
+#' \code{\link[utils]{View}}.
+#'
+#' @import utils
+#' @export
+show_datasets <- function(dbfile)
+{
+  if (!file.exists(dbfile))
+    stop('File', sQuote(dbfile), 'does not exist')
+  dt <- provideInternalData(dbfile)
+
+  ## Iterate through list of data frames
+  for(i in seq_along(dt)) {
+    df <- dt[[i]]
+    name <- names(dt)[i]
+    if (is.null(df) || !nrow(df))
+      warning(name, 'has no data')
+    View(df, title = name)
   }
 }

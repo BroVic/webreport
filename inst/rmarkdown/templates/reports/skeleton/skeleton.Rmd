@@ -1,11 +1,12 @@
 ---
-title: "Weekly Web Monitoring Report"
-author: "NESREA Web Monitoring Group"
-output:
-  word_document: default
+title: "Weekly Web & Social Media Report"
+author: "Press Unit"
+date: "`r format(Sys.Date(), '%A, %d %B %Y') `"
+output: word_document
 params:
   data: ""
 ---
+
 <style>
   body {
     text-align: justify
@@ -13,122 +14,170 @@ params:
 </style>                                                                  
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+pkgs <- c("dplyr", "ggplot2", "knitr", "lubridate")
+lapply(pkgs, function(P) 
+  suppressPackageStartupMessages(require(P, character.only = TRUE)))
+
+opts_chunk$set(echo = FALSE)
+getwd()
 ```
 
-```{r initialize, message=FALSE, include=FALSE}
-reportPeriodText <- 
-  paste(format(lubridate::today() - 6, "%d %B"), "to", format(lubridate::today(), "%d %B %Y"))
+```{r setup data frames, message=FALSE, include=FALSE}
+## Load the data
+data <- params$data
 ```
 
-# 1.0 Introduction
-This is the NESREA Web Monitoring Report for the period **`r reportPeriodText`**[^1].
+*Period:* 
+`r paste(format(Sys.Date() - 6, "%d %B"), "to", format(Sys.Date(), "%d %B %Y"))`
 
-# 2.0 Summary Statistics
-The following tables provide an overview of activity on the Agency's respective platforms.  
+# Website
 
-## 2.1 NESREA Official Website
-```{r load website data}
-                        ############
-                        # Website  #
-                        ############
-newsData <- params$data$webnews
+```{r web prep}
+date.standard <- "1970-01-01"
 
-newsData$Date <- newsData$Date %>%
-  as.Date(origin = "1970-01-01") %>%
+webnews <- data$webnews
+webnews$Date <- webnews$Date %>%
+  as.Date(origin = date.standard) %>%
   as.POSIXct()
 
-newsData <- newsData %>%
-  dplyr::mutate(Month = format(Date, "%B")) %>%
-  dplyr::mutate(Year = format(Date, "%Y"))
+webnews <- webnews %>%
+  mutate(Month = format(Date, "%B")) %>%
+  mutate(Year = format(Date, "%Y"))
 
 ## make variables for monthly/annual data
-thisMth <- format(lubridate::today(), "%B")
-thisYr <- format(lubridate::today(), "%Y")
+thisMth <- format(today(), "%B")
+thisYr <- format(today(), "%Y")
 
-mth_news <- newsData %>%
-  dplyr::filter(Month == thisMth & Year == thisYr)
-wk_news <- newsData %>%
-  dplyr::filter(as.Date(Date) >= lubridate::today() - 7)
+mth_news <- webnews %>%
+  filter(Month == thisMth & Year == thisYr)
+
+wk_news <- webnews %>%
+  filter(as.Date(Date) >= today() - 7)
 ```
 
-|     **Description**        |    **Result**                              |
-|----------------------------|--------------------------------------------|
-|News Stories (All-time)     |`r nrow(newsData)`                          |
-|News Stories in `r thisMth` |`r nrow(mth_news)`                          |
-|News Stories (last 7 days)  |`r nrow(wk_news)`                           |
-|Most recent News Story      |`r newsData$Title[which.max(newsData$Date)]`|
-|                            |                                            |
+| **News Stories** |    **Result**                              |
+|------------------|--------------------------------------------|
+| All-time         | `r nrow(webnews)`                          |
+| In `r thisMth`   | `r nrow(mth_news)`                         |
+| Last 7 days      | `r nrow(wk_news)`                          |
+| Most recent      | `r webnews$Title[which.max(webnews$Date)]` |
+|                  |                                            |
 
-## 2.2 Twitter
-```{r load twitter data, message=FALSE}
-                      ##############
-                      #  TWITTER   #
-                      ##############
+```{r web time-series}
+make_ts(data = data$webnews, platform = 'website')
+```
 
-## Access stored tweets
-all_data <- params$data$tweets
-all_data <- process_stored_tweets(all_data)
+# Twitter
 
-## Add a column of Date objects for easy categorisation. Also carry out a 
-## check to see whether the database needs to be updated.
-all_data$date_only <- as.Date(all_data$created)
+```{r twt prep, message=FALSE}
+## Process tweets by reconverting date field to POSIXct type 
+## and the TRUE/FALSE fields from integer to logical.
+## These were altered upon storage in the database.
+twts <- process_stored_tweets(data$tweets)
 
-wk_data <- all_data %>%
-  dplyr::filter(date_only >= (lubridate::today() - 6) & date_only <= (lubridate::today())) %>%
-  dplyr::arrange(date_only) %>%
-  dplyr::mutate(day = weekdays(date_only, abbreviate = TRUE)) %>%
-  dplyr::mutate(Type = ifelse(isRetweet, "Retweet", "Original"))
-wk_data$day <-  factor(wk_data$day,
-                       levels = unique(wk_data$day),
+## Add a column of Date objects for easy categorisation. Also carry 
+## out a check to see whether the database needs to be updated.
+twts$date_only <- as.Date(twts$created)
+
+wk.data <- twts %>%
+  filter(date_only >= (today() - 6) & date_only <= (today())) %>%
+  arrange(date_only) %>%
+  mutate(day = weekdays(date_only, abbreviate = TRUE)) %>%
+  mutate(Type = ifelse(isRetweet, "Retweet", "Original"))
+
+wk.data$day <-  factor(wk.data$day,
+                       levels = unique(wk.data$day),
                        ordered = TRUE)
   
-last_wk <- all_data %>%
-  dplyr::filter(date_only >= (lubridate::today() - 13) & date_only <= (lubridate::today() - 7))
+last_wk <- twts %>%
+  filter(date_only >= (today() - 13) & date_only <= (today() - 7))
 
-## Remove characters from the text of tweets that are not human-readable, as 
-## they would be of no practical use in the analysis.
-wk_data$text <- remove_nonreadables(wk_data$text)
+## Remove characters from the text of tweets that are not human-readable, 
+## as they would be of no practical use in the analysis.
+wk.data$text <- remove_nonreadables(wk.data$text)
 
-# Some objects to be used to generate and/or display statistics
-no.wk <- nrow(wk_data)
-month_begin <- lubridate::floor_date(lubridate::today(), "month")
-month_end <- lubridate::ceiling_date(lubridate::today(), "month")
-mth_data <- dplyr::filter(all_data, date_only >= month_begin & date_only <= month_end)
-mostRTed <- wk_data$text[which.max(wk_data$retweetCount)]
-mostFaved <- wk_data$text[which.max(wk_data$favoriteCount)]
-tweets_by_us <- dplyr::filter(wk_data, screenName == "NESREANigeria")
-busiest_day <- which.max(table(wk_data$date_only))
-busiest_day <- lubridate::ymd(names(busiest_day))
+## Some objects to be used to generate and/or display statistics
+no.wk <- nrow(wk.data)
+mth.beg <- floor_date(today(), "month")
+mth.end <- ceiling_date(today(), "month")
+mth_data <- twts %>%
+  filter(date_only >= mth.beg & date_only <= mth.end)
+twts.by.nesrea <- filter(wk.data, screenName == "NESREANigeria")
+busy.day  <- which.max(table(wk.data$date_only))
+busy.day  <- ymd(names(busy.day))
 ```
 
-|     **Description**                      |    **Result**                  |
-|------------------------------------------|--------------------------------|
-|No. of tweets in `r format(lubridate::today(), "%B")`|`r nrow(mth_data)`              |
-|No. of tweets in last 7 days              |`r no.wk`                       |
-|Total tweets **by** NESREA                |`r nrow(tweets_by_us)`          |
-|Total tweets **mentioning** NESREA        |`r nrow(wk_data)`               |
-|Average number of tweets per day          |`r floor(nrow(wk_data)/7)`      |
-|Day of highest activity                   |`r format(busiest_day, "%d %B")`|
-|Most liked tweet                          |`r mostFaved`                   |
-|Most retweeted tweet                      |`r mostRTed`                    |
-|Comparative tweet volume (week-on-week)   |**`r no.wk - nrow(last_wk)`**   |
-|                                          |                                |
 
+|     **Description**          |    **Result**                                      |
+|------------------------------|----------------------------------------------------|
+| In `r format(today(), "%B")` | `r nrow(mth_data)`                                 |
+| In last 7 days               | `r no.wk`                                          |
+| Posts made                   | `r nrow(twts.by.nesrea)`                           |
+| Daily average                | `r floor(nrow(wk.data)/7)`                         |
+| Most active on               | `r format(busy.day, "%d %B")`                      |
+| Most liked                   | `r wk.data$text[which.max(wk.data$favoriteCount)]` |
+| Most retweeted               | `r wk.data$text[which.max(wk.data$retweetCount)]`  |
+| Comparative activity         | **`r no.wk - nrow(last_wk)`**                      |
+|                              |                                                    |
 <!-- TODO: Add No. of followers (overall) & new followers (in last 7 days) -->
 
-## 2.3 Facebook
-```{r load-fb-data, message=FALSE}
+```{r tweet time-series}
+make_ts(data = data$tweets, platform = 'twitter')
+## TODO: Implement month & year transitions
+```
+```{r plain density, warning=FALSE, message=FALSE}
+simplePlot <- dens_plot(data = wk.data, platform = "twitter")
+simplePlot +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+```
+```{r daily tweets plot}  
+simplePlot +
+  facet_grid(day ~ .) +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+```
+```{r disaggregated tweets density}
+ggplot(wk.data, aes(created)) +
+  geom_density(aes(fill = Type), alpha = .5) +
+  theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
+  ggtitle(paste("Distribution of tweets")) +
+  xlab("Date")
+```
+```{r twitter sentiments dotchart-1}
+spl <- split(wk.data, wk.data$isRetweet)
+origTwts <- spl[['FALSE']]
+
+twPol <- compute_emotional_valence(origTwts$text)
+visualise_pol_diff(pol.list = twPol)
+```
+```{r twitter sentiment extremes}
+origTwts$emotionalValence <- sapply(twPol, function(x) x$all$polarity)
+```
+
+* __Most positive tweet__: `r origTwts$text[which.max(origTwts$emotionalValence)]`
+* __Most negative tweet__: `r origTwts$text[which.min(origTwts$emotionalValence)]` 
+
+```{r, twitter wordcloud}
+generate_wordcloud(origTwts, twPol, site = "Twitter")
+```
+```{r tweets network}
+## TODO
+RT <- mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
+```
+
+
+# Facebook
+
+```{r fb prep, message=FALSE}
                         ############
                         # Facebook #
                         ############
 ## Load data on Facebook Page posts from database;
 ## also do a little data wrangling
-fbPosts <- params$data$fbposts %>%
-  prepare_data(.) %>%
-  dplyr::select(message:shares_count) %>%
-  dplyr::mutate(created_mth = format(as.Date(created_time), "%B")) %>%
-  dplyr::mutate(created_yr = format(as.Date(created_time), "%Y"))
+fbPosts <- data$fbposts %>%
+  prepare() %>%
+  select(message:shares_count) %>%
+  mutate(created_mth = format(created_time, "%B")) %>%
+  mutate(created_yr = format(created_time, "%Y"))
 
 fbComments <- params$data$fbcomments
 fbLikes <- params$data$fblikes
@@ -146,9 +195,9 @@ fbPosts$created_mth <-
   factor(levels = month.name, ordered = TRUE)
 
 mth_Posts <- fbPosts %>%
-  dplyr::filter(created_mth == thisMth & created_yr == thisYr)
+  filter(created_mth == thisMth & created_yr == thisYr)
 wk_Posts <- mth_Posts %>%
-  dplyr::filter(created_time >= (lubridate::today() - 6))
+  filter(created_time >= (today() - 6))
 ```
 
 |     **Description**        |    **Result**                            |
@@ -163,123 +212,23 @@ wk_Posts <- mth_Posts %>%
 |Most Commented  (Overall)   |`r return_text(fbPosts, "comments_count")`|
 |                            |                                          |
 
-# 3.0 Exploratory Analysis
-**Methodology**: The data were harvested using R scripts[^2]. For the website, the text in the pages of interest were scraped as hypertext markup language (HTML) with particular portions of the page(s) identified via cascading style sheet (CSS) dplyr::selectors. For the social media platforms Facebook and Twitter, the data were downloaded via the respective platforms' application programming interface (API). All the downloaded data are stored together locally in a database. The analyses in this document (including visualizations) were also carried out using R.
-
-## 3.1 Website 
-Below is a tabulation of recent news items uploaded to the NESREA Official website:
-```{r news summary, results='asis'}
-knitr::kable(head(newsData[, c(1, 4, 5)], n = 10L),
-             caption = "Table: Ten (10) Most Recently Uploaded News Stories")
+```{r fb time-series}
+make_ts(data = data$fbposts, platform = 'facebook')
 ```
-
-## 3.2 Twitter
-All tweets in this analysis are those containing the NESREA handle, [nesreanigeria](https://www.twitter.com/nesreanigeria). Firstly, they are displayed as a density distribution, where $p(AUC) = 1$ (for simplicity, the $y$-axis labels are not displayed).  
-```{r plain density, warning=FALSE, message=FALSE}
-simplePlot <- plain_dens_plot(data = wk_data, platform = "twitter")
-simplePlot +
-  ggplot2::theme(axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank())
+```{r density dist: fb posts}
+ggplot(fbPosts, aes(created_time)) +
+  geom_density(fill = "purple", alpha = 0.6) +
+  ggtitle("Distribution of Facebook posts")
 ```
-
-Below, is a representation of the previous plot, with the data disaggregated by days in order to display relative Twitter activity during the week under review.[^3]  
-```{r daily tweets plot}  
-simplePlot +
-  ggplot2::facet_grid(day ~ .) +
-  ggplot2::theme(axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank())
-```
-
-The tweets are then diaggregated by whether they are original tweets or retweets (retweets could be reflective of a trend or public interest in a particular tweet posted by another user).  
-```{r disaggregated tweets density}
-ggplot2::ggplot(wk_data, ggplot2::aes(created)) +
-  ggplot2::geom_density(aes(fill = Type), alpha = .5) +
-  ggplot2::theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-  ggplot2::ggtitle(paste("Distribution of tweets for", reportPeriodText)) +
-  ggplot2::xlab("Date")
-```
-
-For sentiment analysis, positive and negative words are displayed in Cleveland dot plots  
-```{r twitter sentiments dotchart-1}
-spl <- split(wk_data, wk_data$isRetweet)
-origTwts <- spl[['FALSE']]
-
-twPol <- compute_emotional_valence(origTwts$text)
-visualise_pol_diff(pol.list = twPol)
-```
-
-
-```{r twitter sentiment extremes}
-origTwts$emotionalValence <- sapply(twPol, function(x) x$all$polarity)
-```
-
-The tweets on either side of the emotional spectrum are identified. This is done to place the outcome of the earlier computaion in proper perspective.
-
-* __Most positive tweet__: `r origTwts$text[which.max(origTwts$emotionalValence)]`
-* __Most negative tweet__: `r origTwts$text[which.min(origTwts$emotionalValence)]`  
-
-The main words associated with tweets found to be positive, neutral or negative (excluding those already plotted above) are displayed in a tag cloud. In this depiction, the size of a word is proportionate to the frequency of its occurence. These can be useful as keywords for carrying out a further, in-depth search.   
-```{r, twitter wordcloud}
-generate_wordcloud(origTwts, twPol, site = "Twitter")
-```
-
-```{r network}
-## TODO
-RT <- dplyr::mutate(spl[['TRUE']], sender = substr(text, 5, regexpr(':', text) - 1))
-```
-
-
-## 3.3 Facebook
-Compared to Twitter, which has a characteristic high-volume activity, NESREA Facebook Page posts are few. Thus, we have drawn a Kernig density plot of **all** posts done by the Page's handlers.  
-```{r density dist: FB posts}
-ggplot2::ggplot(fbPosts, ggplot2::aes(created_time)) +
-  ggplot2::geom_density(fill = "purple", alpha = 0.6) +
-  ggplot2::ggtitle("Distribution of Facebook posts")
-```
-
-Also, all comments made on NESREA's Facebook Page posts are displayed using a similar plotting method.  
 ```{r density dist: FB comments}
-plain_dens_plot(fbComments, platform = "facebook")
+dens_plot(fbComments, platform = "facebook")
 ```
-
-As with the Twitter data, the positive and negative words on in comments on the NESREA Facebook Page are compared side-by-side using Cleveland dot plots.  
 ```{r fb polarities}
 fbPol <- compute_emotional_valence(text.var = fbComments$message)
 visualise_pol_diff(pol.list = fbPol)
 ```
-
-The tag cloud method is also used to present key words found in comments made by the Facebook community on the Agency's posts.  
 ```{r facebook wordcloud}
 fbComments$emotionalValence <- sapply(fbPol, function(x) x$all$polarity)
 generate_wordcloud(fbComments, fbPol, site = "Facebook")
 ```
 
-# 4.0 Observations
-For the period under review, the following observations were made:  
-**Website:**
-
-
-**Twitter:**  
-
-
-**Facebook:**  
-
-# 5.0 Recommendations
-In the light of the above, we would like to make the following recommendations:  
-
-
-```{r signatories, echo=FALSE}
-victor <- person("Victor", "Ordu", email =  "victor.ordu@nesrea.gov.ng", comment = "Chairman Web Monitoring Group")
-remi <- person("Remi", "Agunbiade", email = "remi.agunbiade@nesrea.gov.ng", comment = "Member, Web Monitoring Group")
-amaka <- person("Amaka", "Ejiofor", email = "amaka.ejiofor@nesrea.gov.ng", comment = "Member, Web Monitoring Group")
-eze <- person("Ezechinyere", "Achilefu", email = "ezechinyere.achilefu@nesrea.gov.ng", comment = "Member, Web Monitoring Group")
-```
-
-Submitted by:
-
-
-**`r paste(victor$given, victor$family)`**  
-`r victor$comment`  
-
-  
-[^1]: The report was built using *R `r getRversion()`* on `r format(Sys.time(), "%A, %d %B %Y at %H:%M")`.
-[^2]: R is a programming language as well as an environment for statistical computing (<http://r-project.org>)
-[^3]: Note that days with no data are automatically dropped.

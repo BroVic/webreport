@@ -1,5 +1,50 @@
 ## test-tw-functions.R
 
+context('Local data retrieval')
+
+test_that('Tweet data is type-checked and transformed where appropriate', {
+  twts <- readRDS('test-data/ntweets.rds')
+  val <- process_stored_tweets(twts)
+
+  expect_is(val, 'data.frame')
+  expect_type(val, 'list')
+  expect_error(process_stored_tweets(),
+               'argument "data" is missing, with no default')
+  expect_error(process_stored_tweets(999))
+  expect_error(process_stored_tweets(mtcars),
+               'Number of columns is 11')
+  ## TODO: Add test case where columns == 16 but data are incompatible
+  expect_error(process_stored_tweets("A string."),
+               'inherits(data, "data.frame") is not TRUE',
+               fixed = TRUE)
+})
+
+# ====
+
+context("Twitter data preprocesing")
+
+test_that("altered fields from database are reprocessed", {
+  logi <- c('favorited', 'truncated', 'isRetweet', 'retweeted')
+  df <- readRDS("test-data/ntweets.rds")
+  procDF <- process_stored_tweets(df)
+
+  expect_error(process_stored_tweets(67))
+  expect_error(process_stored_tweets(data.frame(
+    c(1:3), c(T, F, T), c(letters[1:3]), c(rep(9)), stringsAsFactors = FALSE
+  )))
+  expect_error(process_stored_tweets(within(df, df <-
+                                              as.logical(df$isRetweet))))
+  expect_is(procDF, "data.frame")
+  expect_equal(c(25, 16), dim(procDF))
+  expect_true(all(logi %in% colnames(procDF)))
+  expect_type(procDF$created, "double")
+  expect_is(procDF$created, "POSIXct")
+  for (i in seq_along(logi))
+    expect_type(procDF[[logi[i]]], "logical")
+})
+
+# ====
+
 context("Rapid checks")
 
 test_that("Twitter mentions can be compared", {
@@ -28,3 +73,5 @@ test_that("Twitter mentions can be compared", {
   expect_error(compare_mentions(c(hnd1, hnd2), to = as.character(Sys.Date())),
                "'to' cannot be passed when 'from' is NULL")
 })
+
+

@@ -1,8 +1,43 @@
+# global-function-prototypes.R
+
+# Internal helper functions
+
+## Collects the internal data and presents
+## it for rendering the document
+#' @importFrom RSQLite dbConnect
+#' @importFrom RSQLite dbDisconnect
+#' @importFrom RSQLite dbIsValid
+#' @importFrom RSQLite dbListTables
+#' @importFrom RSQLite dbReadTable
+#' @importFrom RSQLite SQLite
+provideInternalData <- function(db)
+{
+  con <- dbConnect(SQLite(), db)
+  if (!dbIsValid(con))
+    stop("Connection to database not established.")
+  tbls <- dbListTables(con)
+  dfs <- sapply(tbls, USE.NAMES = TRUE, function(table) {
+    dbReadTable(con, table)
+  })
+  names(dfs) <- gsub('^nesreanigeria_', '', names(dfs))
+  on.exit({
+    if (dbIsValid(con))
+      dbDisconnect(con)
+  })
+
+  invisible(dfs)
+}
+
 # Calclates the polarity for each text field
 ## This operation ought to generate series of warnings because of multiple
 ## punctuations that expectedly occur in the text, but this has been suppressed
 #' @importFrom qdap polarity
 compute_emotional_valence <- function(text.var) {
+  stopifnot(is.character(text.var))
+  if (!length(text.var) > 0L)
+    stop(sQuote(text.var), "is of length 0")
+  if (length(dim(text.var)) > 1)
+    stop(sQuote(text.var), "has more than one dimension")
   suppressWarnings(
     lapply(text.var, function(txt) {
       txt <- gsub("(\\.|!|\\?)+\\s+|(\\++)", " ", txt)
@@ -61,7 +96,7 @@ generate_wordcloud <- function(data, pol.list, site)
 {
   pol.tab <- make_word_table(pol.list)
   polSplit <- split(data, sign(data$emotionalValence))
-  picked <- choose_platform(site)
+  picked <- choosePlatform(site)
   var <- c("text", "message")
   var <- var[picked]
   if (length(polSplit) != 3) {
@@ -125,7 +160,7 @@ make_word_table <- function(pol.list) {
 # Selects the appropriate social media platform being analysed. Returns an
 # integer value, 1 for Twitter and 2 for Facebook, which is used internally
 # for indexing other relevant functions.
-choose_platform <- function(site)
+choosePlatform <- function(site)
 {
   stopifnot(is.character(site))
   if(identical(tolower(site), "twitter")) return(1L)
@@ -160,29 +195,6 @@ make_corpus <- function(GText, stem = TRUE) {
 
 
 
-
-
-
-## Draw a density plot of social data
-#' @import ggplot2
-plain_dens_plot <- function(data, platform)
-{
-  choice <- choose_platform(site = platform)
-  type <- c("tweets", "comments")
-  var <- c("created", "created_time")
-  hue <- c("red", "darkblue")
-  title <- paste("Proportion of", type[choice])
-  gg <- ggplot(data, aes_string(var[choice])) +
-    geom_density(fill = hue[choice], alpha = 0.4) +
-    theme(legend.justification = c(1, 1), legend.position = c(1, 1)) +
-    ggtitle(title) +
-    xlab("Date")
-  gg
-}
-
-
-
-
 # Returns a message that matches a particular metric
 # (used only inside the body text)
 #' @importFrom dplyr select
@@ -204,3 +216,13 @@ remove_nonreadables <- function(string = NULL) {
   nu.str <- gsub("[^[:graph:]]", " ", string)
   str_trim(nu.str)
 }
+
+
+
+
+
+
+
+# S3 generic for data preprocessing
+prepare <- function(x, ...)
+  UseMethod("prepare")
