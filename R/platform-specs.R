@@ -1,5 +1,8 @@
 # platform-specs.R
 
+# Make 'R CMD check' happy
+globalVariables(c('bySender', 'screenName'))
+
 # TODO: Introduce inheritance: SocialMediaData ----> Platforms
 
 ## Constructor for an (internal) S3 object that contains additional
