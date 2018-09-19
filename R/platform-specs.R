@@ -65,8 +65,8 @@ prepare.platformSpecs <- function(x, sender) {
     ## Aggregate the number of updates of 'sender'
     ## by the date and extract the column
     updatesBySender <- data %>%
-      rename(day = dc) %>%
-      group_by(day) %>%
+      rename(value = dc) %>%
+      group_by(value) %>%
       summarise(bySender = sum(bySender)) %>%
       select(bySender)
   }
@@ -80,24 +80,23 @@ prepare.platformSpecs <- function(x, sender) {
     { seq(min(.), max(.), by = 'day') } %>%
     base::setdiff(data[[dc]]) %>%
     as_tibble() %>%
-    rename(day = value) %>%
-    mutate(n = Zeros) %>%
-    { .['day'] <- as.Date(.$day, origin ='1970-01-01') } %>%
-    as_tibble()
+    { .['value'] <- as.Date(.$value, origin ='1970-01-01') } %>%
+    as_tibble() %>%
+    mutate(n = Zeros)
   if (isTwitter)
     zeroUpdateDays <- zeroUpdateDays %>% mutate(bySender = Zeros)
   data <- data %>%
-    rename(day = dc) %>%
-    group_by(day) %>%
+    rename(value = dc) %>%
+    group_by(value) %>%
     count()
   if (isTwitter)
     data <- data %>% bind_cols(updatesBySender)
   data %>%
     bind_rows(zeroUpdateDays) %>%
-    arrange(day) %>%
+    arrange(value) %>%
     as.data.frame() %>%
     rename(allUpdates = n) %>%
-    select(-day) %>%
+    select(-value) %>%
     data.matrix() %>%
     invisible()
 }
