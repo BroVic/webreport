@@ -4,7 +4,7 @@
 \alias{make_ts}
 \title{Plot Weekly Time-Series Data For Online Platforms}
 \usage{
-make_ts(data, platform, base = TRUE, pt = 2L)
+make_ts(data, platform, ...)
 }
 \arguments{
 \item{data}{An object of class \code{data.frame}}
@@ -12,23 +12,13 @@ make_ts(data, platform, base = TRUE, pt = 2L)
 \item{platform}{A character string, with the name of the chosein online
 platform. Options are Facebook, Twitter and Website.}
 
-\item{base}{Logical; whether to create a base plot or a ggplot.}
-
-\item{pt}{An integer value represeting the weight of the line. Defaults to 2L.}
+\item{...}{Additional arguments passed to \code{plot}.}
 }
 \value{
 Has no return value per se. It results in the production of a
-time-series plot (either a base \code{graphics} or a
-\code{\link[ggplot2]{ggplot}} type of plot.
+time-series plot.
 }
 \description{
 Uses locally stored data from Website, Facebook and Twitter profiles to plot
 time-series for the rolling year in weekly time units.
-}
-\details{
-The data used for this function i.e. the date variable, is expected
-to be either a nummeric vector (as stored by Twitter and Website data) or as
-a character vector (Facebook). The Facebook date elements are stored in the
-POSIX-compatible \code{YYYY-MM-DDTHH:MM:SS+} format. Any other presentation
-produce an error.
 }
