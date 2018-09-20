@@ -54,7 +54,7 @@ download_all_data <- function(keyword, data.store)
 #' database in the spreadsheet-like format prrovided by
 #' \code{\link[utils]{View}}.
 #'
-#' @import utils
+#' @importFrom utils View
 #' @export
 show_datasets <- function(dbfile)
 {
