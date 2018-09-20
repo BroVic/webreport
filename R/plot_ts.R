@@ -61,7 +61,8 @@ make_ts <- function(data, platform, ...) {
       col = colour,
       lwd = 2,
       main = specs$title.stub,
-      ylab = 'Posts'
+      ylab = 'Posts',
+      ylim = c(0, max(tsObj) + 2)
     )
     legend('topright', legend = legend, fill = colour)
   }
