@@ -232,3 +232,8 @@ fbComments$emotionalValence <- sapply(fbPol, function(x) x$all$polarity)
 generate_wordcloud(fbComments, fbPol, site = "Facebook")
 ```
 
+```{r signature}
+amk <- person(given = "Amaka", family = 'Ejiofor', middle = 'U.', email = 'amaka.ejiofor@nesrea.gov.ng', comment = 'Asst. Chief Information Officer')
+```
+Prepared and submitted by  
+`r amk `
