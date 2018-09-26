@@ -60,19 +60,19 @@ prepare.platformSpecs <- function(x, sender) {
   sender <- sender[1]
   dc <- x$date.colName
   data <- x$data
-  isTwitter <- tolower(x$name) == 'twitter'
-  if (isTwitter) {
-    data <- data %>% mutate(bySender = screenName == sender)
-    # TODO: Create cases for Facebook & Website (no, classes!)
-
-    ## Aggregate the number of updates of 'sender'
-    ## by the date and extract the column
-    updatesBySender <- data %>%
-      rename(value = dc) %>%
-      group_by(value) %>%
-      summarise(bySender = sum(bySender)) %>%
-      select(bySender)
-  }
+  # isTwitter <- tolower(x$name) == 'twitter'
+  # if (isTwitter) {
+  #   data <- data %>% mutate(bySender = screenName == sender)
+  #   # TODO: Create cases for Facebook & Website (no, classes!)
+  #
+  #   ## Aggregate the number of updates of 'sender'
+  #   ## by the date and extract the column
+  #   updatesBySender <- data %>%
+  #     rename(value = dc) %>%
+  #     group_by(value) %>%
+  #     summarise(bySender = sum(bySender)) %>%
+  #     select(bySender)
+  # }
 
   ## Find days with zero status updates
   ## which would be missing from the
@@ -86,14 +86,14 @@ prepare.platformSpecs <- function(x, sender) {
     { .['value'] <- as.Date(.$value, origin ='1970-01-01') } %>%
     as_tibble() %>%
     mutate(n = Zeros)
-  if (isTwitter)
-    zeroUpdateDays <- zeroUpdateDays %>% mutate(bySender = Zeros)
+  # if (isTwitter)
+  #   zeroUpdateDays <- zeroUpdateDays %>% mutate(bySender = Zeros)
   data <- data %>%
     rename(value = dc) %>%
     group_by(value) %>%
     count()
-  if (isTwitter)
-    data <- data %>% bind_cols(updatesBySender)
+  # if (isTwitter)
+  #   data <- data %>% bind_cols(updatesBySender)
   data %>%
     bind_rows(zeroUpdateDays) %>%
     arrange(value) %>%
