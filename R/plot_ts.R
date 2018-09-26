@@ -1,4 +1,5 @@
 # plot_ts.R
+
 globalVariables(c('.', 'week'))
 
 #' Plot Weekly Time-Series Data For Online Platforms
@@ -23,10 +24,12 @@ make_ts <- function(data, platform, ...) {
   stopifnot(is.character(platform))
   ps <- platformSpecs(data, platform)
   res <- prepare(ps,'NESREANigeria')
+  begDate <- Sys.Date() - 365
+  begYr <- .numericalDateElem(begDate, '%Y')
+  begMth <- .numericalDateElem(begDate, '%m')
   tso <- ts(data = res,
-            start = c(2016, 12),    # TODO: Change hard coding here!
-            end = c(2018, 8),
-            frequency = 12)
+            start = c(begYr, begMth),
+            frequency = 12L)
   .drawTimeSeries(tso, specs = ps)
 }
 
@@ -34,45 +37,55 @@ make_ts <- function(data, platform, ...) {
 
 #' @importFrom graphics plot
 #' @importFrom stats window
-.drawTimeSeries <- function(tsObj, startDate = -365L, base = TRUE, specs, ...)
-{
-  stopifnot(exprs = {
-    inherits(tsObj, 'ts')
-    is.numeric(startDate)
-    is.logical(base)
-    inherits(specs, 'platformSpecs')
-  })
-  if (base) {
-    colour <- specs$colour
-    legend <- 'All updates'
-    if(is.matrix(tsObj) && ncol(tsObj) == 2) {
-      colour <- c(colour, 'red')
-      legend <- c(legend, 'NESREA')
-    }
-    plot(
-      window(
+.drawTimeSeries <-
+  function(tsObj,
+           startDate = (Sys.Date() - 365),
+           base = TRUE,
+           specs,
+           ...)
+  {
+    stopifnot(exprs = {
+      inherits(tsObj, 'ts')
+      inherits(startDate, 'Date')
+      is.logical(base)
+      inherits(specs, 'platformSpecs')
+    })
+    if (base) {
+      colour <- specs$colour
+      legend <- 'All updates'
+      if (is.matrix(tsObj) && ncol(tsObj) == 2) {
+        colour <- c(colour, 'red')
+        legend <- c(legend, 'NESREA')
+      }
+      tsObj <- window(
         tsObj,
-        start = c(.numericalDateElem('%Y', startDate),
-                  .numericalDateElem('%m', startDate)),
-        end = c(.numericalDateElem('%Y'),
-                .numericalDateElem('%m'))
-      ),
-      plot.type = 'single',
-      col = colour,
-      lwd = 2,
-      main = specs$title.stub,
-      ylab = 'Posts',
-      ylim = c(0, max(tsObj) + 2)
-    )
-    legend('topright', legend = legend, fill = colour)
+        start = c(
+          .numericalDateElem(startDate, '%Y'),
+          .numericalDateElem(startDate, '%m')
+        ),
+        end = c(
+          .numericalDateElem(Sys.Date(), '%Y'),
+          .numericalDateElem(Sys.Date(), '%m') - 1
+        )
+      )
+      plot(
+        tsObj,
+        plot.type = 'single',
+        col = colour,
+        lwd = 2,
+        main = specs$title.stub,
+        ylab = 'Posts',
+        ylim = c(0, max(tsObj) + 2)
+      )
+      legend('topright', legend = legend, fill = colour)
+    }
+    else {
+      message("Other plotting formats not yet implemented")
+      # print(ggplot(updates.by.wk, aes(week, n)) +
+      #         geom_line(colour = colour, size = pt) +
+      #         ggtitle(ps$title.stub))
+    }
   }
-  else {
-    message("Other plotting formats not yet implemented")
-    # print(ggplot(updates.by.wk, aes(week, n)) +
-    #         geom_line(colour = colour, size = pt) +
-    #         ggtitle(ps$title.stub))
-  }
-}
 
 
 
@@ -80,14 +93,13 @@ make_ts <- function(data, platform, ...) {
 
 
 ## Returns the numerical value for a given element of a Date object
-.numericalDateElem <- function(placeholder, dif = 0) {
+.numericalDateElem <- function(date, placeholder) {
   stopifnot(exprs = {
     is.character(placeholder)
     grepl('^%[A-Za-z]{1}', placeholder)
   })
-  if (!is.numeric(dif) & !is.integer(dif))
-    stop("'dif' should be a number")
-  if (abs(dif) > 365)
-    warning('You have elected to use a time frame larger than 1 year')
-  as.numeric(format(Sys.Date() + dif, placeholder))
+  stopifnot(inherits(date, 'Date'))
+  if (abs(Sys.Date() - date) > 365)
+    warning('You have elected to use a time-frame larger than 1 year')
+  as.numeric(format(date, placeholder))
 }
