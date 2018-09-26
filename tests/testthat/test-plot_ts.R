@@ -52,18 +52,36 @@ test_that('platform specific variables are set', {
 })
 
 test_that('numerical values for date elements are correctly computed', {
-  expect_error(.numericalDateElem())
-  expect_error(.numericalDateElem(placeholder = 0))
-  expect_error(.numericalDateElem(placeholder = 'error'))
-  expect_warning(.numericalDateElem(placeholder = '%yy'))
-  expect_error(.numericalDateElem(placeholder = '%b', dif = 'dif'))
-
-  val <- .numericalDateElem('%Y')
-  expect_type(val, 'double')
-  expect_is(val, 'numeric')
-  expect_equal(val, as.numeric(format(Sys.Date(), '%Y')))
+  expect_error(.numericalDateElem(),
+               'argument "placeholder" is missing')
+  expect_error(.numericalDateElem(placeholder = 0),
+               'is.character(placeholder) is not TRUE',
+               fixed = TRUE)
+  expect_error(.numericalDateElem(placeholder = 'error'),
+               'grepl("^%[A-Za-z]{1}", placeholder) is not TRUE',
+               fixed = TRUE)
+  expect_warning(.numericalDateElem(Sys.Date() - 400, '%Y'),
+                 'You have elected to use a time-frame larger than 1 year')
+  expect_warning(.numericalDateElem(Sys.Date(), '%yy'),
+                 'NAs introduced by coercion')
+  expect_error(.numericalDateElem(date = '2018-01-01', placeholder = '%b'),
+               'inherits(date, "Date") is not TRUE',
+               fixed = TRUE)
 })
 
+leastDate <- min(df[[result$date.colName]])
+yr <- suppressWarnings(.numericalDateElem(leastDate, '%Y'))
+mth <- suppressWarnings(.numericalDateElem(leastDate, '%m'))
+test_that('Numerical date values are in order', {
+  expect_type(yr, 'double')
+  expect_type(mth, 'double')
+  expect_is(yr, 'numeric')
+  expect_is(mth, 'numeric')
+  expect_equal(yr, as.numeric(format(leastDate, '%Y')))
+  expect_equal(mth, as.numeric(format(leastDate, '%m')))
+})
+
+output <- prepare(result, 'ecomsaoauife')
 test_that('matrix for time series is successfully created', {
   expect_error(prepare(specs = result))
   expect_error(prepare(sender = 'ecomsaoauife'))
@@ -72,13 +90,65 @@ test_that('matrix for time series is successfully created', {
     "unused argument (\"NESREANigeria\")",
     fixed = TRUE
   )
-  # expect_error(prepare(df, 'nonexistent'),
-  #              "'sender' was not found in the dataset")
-
   ## Success test cases
-  output <- prepare(result, 'ecomsaoauife')
   expect_type(output, 'integer')
   expect_is(output, 'matrix')
-  expect_equal(dim(output)[2], 2L)
-  expect_identical(colnames(output), c('allUpdates', 'bySender'))
+  # expect_equal(dim(output)[2], 2L)
+  # expect_identical(colnames(output), c('allUpdates', 'bySender'))
+})
+
+
+test_that('Input for time-series plotting is validated', {
+  tmsr <- ts(output, start = c(yr, mth), frequency = 12)
+
+  expect_warning(.drawTimeSeries(tmsr, startDate = leastDate, specs = result))
+  expect_message(
+    .drawTimeSeries(tmsr, specs = result, base = FALSE),
+    'Other plotting formats not yet implemented')
+  expect_error(.drawTimeSeries(1:10, specs = result),
+               'inherits(tsObj, "ts") is not TRUE',
+               fixed = TRUE)
+  expect_error(.drawTimeSeries(tmsr, specs = list()),
+               'inherits(specs, "platformSpecs") is not TRUE',
+               fixed = TRUE)
+  expect_error(.drawTimeSeries(tmsr, specs = result, base = ''),
+               'is.logical(base) is not TRUE',
+               fixed = TRUE)
+  expect_error(.drawTimeSeries(tmsr, specs = result, base = 42),
+               'is.logical(base) is not TRUE',
+               fixed = TRUE)
+  expect_error(.drawTimeSeries(tmsr, specs = result, base = NA),
+               'missing value where TRUE/FALSE needed',
+               fixed = TRUE)
+  expect_error(
+    object = .drawTimeSeries(tmsr,
+                             specs = result,
+                             startDate = as.character(Sys.Date())),
+    info = 'inherits(startDate, "Date") is not TRUE',
+    fixed = TRUE
+  )
+  expect_error(
+    object = .drawTimeSeries(tmsr,
+                             specs = result,
+                             startDate = as.numeric(Sys.Date())),
+    info = 'inherits(startDate, "Date") is not TRUE',
+    fixed = TRUE
+  )
+  expect_error(
+    .drawTimeSeries(tmsr, specs = result, startDate = NA),
+    info = 'inherits(startDate, "Date") is not TRUE',
+    fixed = TRUE
+  )
+  expect_error(
+    .drawTimeSeries(tmsr, specs = result, startDate = NULL),
+    'inherits(startDate, "Date") is not TRUE',
+    fixed = TRUE
+  )
+  expect_error(
+    object = .drawTimeSeries(tmsr,
+                             specs = result,
+                             startDate = as.POSIXct(Sys.Date())),
+    info = 'inherits(startDate, "Date") is not TRUE',
+    fixed = TRUE
+  )
 })
