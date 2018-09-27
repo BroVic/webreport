@@ -10,6 +10,7 @@ globalVariables(c('.', 'week'))
 #' @param data An object of class \code{data.frame}
 #' @param platform A character string, with the name of the chosein online
 #' platform. Options are Facebook, Twitter and Website.
+#' @param startDate A \code{Date} object of length 1. Defaults to 1 year back.
 #' @param ... Additional arguments passed to \code{plot}.
 #'
 #'
@@ -19,15 +20,17 @@ globalVariables(c('.', 'week'))
 #' @importFrom stats ts
 #'
 #' @export
-make_ts <- function(data, platform, ...) {
-  stopifnot(inherits(data, 'data.frame'))
-  stopifnot(is.character(platform))
+make_ts <- function(data, platform, startDate = Sys.Date() - 365, ...) {
+  stopifnot(exprs = {
+    inherits(data, 'data.frame')
+    inherits(startDate, 'Date')
+    is.character(platform)
+  })
   ps <- platformSpecs(data, platform)
-  res <- prepare(ps,'NESREANigeria')
-  begDate <- Sys.Date() - 365
-  begYr <- .numericalDateElem(begDate, '%Y')
-  begMth <- .numericalDateElem(begDate, '%m')
-  tso <- ts(data = res,
+  mat <- prepare(ps, 'NESREANigeria')
+  begYr <- .numericalDateElem(startDate, '%Y')
+  begMth <- .numericalDateElem(startDate, '%m')
+  tso <- ts(data = mat,
             start = c(begYr, begMth),
             frequency = 12L)
   .drawTimeSeries(tso, specs = ps)
@@ -37,55 +40,38 @@ make_ts <- function(data, platform, ...) {
 
 #' @importFrom graphics plot
 #' @importFrom stats window
-.drawTimeSeries <-
-  function(tsObj,
-           startDate = (Sys.Date() - 365),
-           base = TRUE,
-           specs,
-           ...)
-  {
-    stopifnot(exprs = {
-      inherits(tsObj, 'ts')
-      inherits(startDate, 'Date')
-      is.logical(base)
-      inherits(specs, 'platformSpecs')
-    })
-    if (base) {
-      colour <- specs$colour
-      legend <- 'All updates'
-      if (is.matrix(tsObj) && ncol(tsObj) == 2) {
-        colour <- c(colour, 'red')
-        legend <- c(legend, 'NESREA')
-      }
-      tsObj <- window(
-        tsObj,
-        start = c(
-          .numericalDateElem(startDate, '%Y'),
-          .numericalDateElem(startDate, '%m')
-        ),
-        end = c(
-          .numericalDateElem(Sys.Date(), '%Y'),
-          .numericalDateElem(Sys.Date(), '%m') - 1
-        )
-      )
-      plot(
-        tsObj,
-        plot.type = 'single',
-        col = colour,
-        lwd = 2,
-        main = specs$title.stub,
-        ylab = 'Posts',
-        ylim = c(0, max(tsObj) + 2)
-      )
-      legend('topright', legend = legend, fill = colour)
+.drawTimeSeries <- function(tsObj, base = TRUE, specs, ...)
+{
+  stopifnot(exprs = {
+    inherits(tsObj, 'ts')
+    is.logical(base)
+    inherits(specs, 'platformSpecs')
+  })
+  if (base) {
+    colour <- specs$colour
+    legend <- 'All updates'
+    if (is.matrix(tsObj) && ncol(tsObj) == 2) {
+      colour <- c(colour, 'red')
+      legend <- c(legend, 'NESREA')
     }
-    else {
-      message("Other plotting formats not yet implemented")
-      # print(ggplot(updates.by.wk, aes(week, n)) +
-      #         geom_line(colour = colour, size = pt) +
-      #         ggtitle(ps$title.stub))
-    }
+    plot(
+      tsObj,
+      plot.type = 'single',
+      col = colour,
+      lwd = 2,
+      main = specs$title.stub,
+      ylab = 'Posts',
+      ylim = c(0, max(tsObj) + 2)
+    )
+    legend('topright', legend = legend, fill = colour)
   }
+  else {
+    message("Other plotting formats not yet implemented")
+    # print(ggplot(updates.by.wk, aes(week, n)) +
+    #         geom_line(colour = colour, size = pt) +
+    #         ggtitle(ps$title.stub))
+  }
+}
 
 
 

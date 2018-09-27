@@ -4,13 +4,15 @@
 \alias{make_ts}
 \title{Plot Weekly Time-Series Data For Online Platforms}
 \usage{
-make_ts(data, platform, ...)
+make_ts(data, platform, startDate = Sys.Date() - 365, ...)
 }
 \arguments{
 \item{data}{An object of class \code{data.frame}}
 
 \item{platform}{A character string, with the name of the chosein online
 platform. Options are Facebook, Twitter and Website.}
+
+\item{startDate}{A \code{Date} object of length 1. Defaults to 1 year back.}
 
 \item{...}{Additional arguments passed to \code{plot}.}
 }
