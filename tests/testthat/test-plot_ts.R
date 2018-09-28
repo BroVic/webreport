@@ -6,12 +6,14 @@ context('Time-series plotting')
 dat <- readRDS('test-data/ntweets.rds')
 result <- platformSpecs(dat, 'twitter')
 df <- result$data
-leastDate <- min(df[[result$date.colName]])
-yr <- suppressWarnings(.numericalDateElem(leastDate, '%Y'))
-mth <- suppressWarnings(.numericalDateElem(leastDate, '%m'))
+begDate <- min(df[[result$date.colName]])
+endDate <- max(df[[result$date.colName]])
+yr <- suppressWarnings(.numericalDateElem(begDate, '%Y'))
+mth <- suppressWarnings(.numericalDateElem(begDate, '%m'))
 dmatrix <- prepare(result, 'ecomsaoauife')
-tmsr <- ts(dmatrix, start = c(yr, mth), frequency = 12)
+tmsr <- zoo(dmatrix, order.by = seq(begDate, endDate, by = 'day'))
 
+## Tests proper
 test_that('input is validated', {
   expect_error(make_ts(), '"data" is missing, with no default')
   expect_error(make_ts(data = matrix(LETTERS, 2)),
@@ -103,8 +105,8 @@ test_that('Numerical date values are in order', {
   expect_type(mth, 'double')
   expect_is(yr, 'numeric')
   expect_is(mth, 'numeric')
-  expect_equal(yr, as.numeric(format(leastDate, '%Y')))
-  expect_equal(mth, as.numeric(format(leastDate, '%m')))
+  expect_equal(yr, as.numeric(format(begDate, '%Y')))
+  expect_equal(mth, as.numeric(format(begDate, '%m')))
 })
 test_that('Time series object is successfully created', {
   expect_error(prepare(specs = result))
@@ -125,7 +127,7 @@ test_that('Input for time-series plotting is validated', {
     .drawTimeSeries(tmsr, specs = result, base = FALSE),
     'Other plotting formats not yet implemented')
   expect_error(.drawTimeSeries(1:10, specs = result),
-               'inherits(tsObj, "ts") is not TRUE',
+               'inherits(zObj, "zoo") is not TRUE',
                fixed = TRUE)
   expect_error(.drawTimeSeries(tmsr, specs = list()),
                'inherits(specs, "platformSpecs") is not TRUE',
