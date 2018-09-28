@@ -26,7 +26,8 @@ Imports:
     tools (>= 3.4.3),
     twitteR (>= 1.1.9),
     wordcloud (>= 2.5),
-    xml2 (>= 1.1.1)
+    xml2 (>= 1.1.1),
+    zoo (>= 1.8.1)
 SystemRequirements: Java 1.8 or above (both 32-bit & 64-bit)
 License: MIT + file LICENSE
 Encoding: UTF-8

@@ -17,7 +17,7 @@ globalVariables(c('.', 'week'))
 #' @return Has no return value per se. It results in the production of a
 #' time-series plot.
 #'
-#' @importFrom stats ts
+#' @importFrom zoo zoo
 #'
 #' @export
 make_ts <- function(data, platform, startDate = Sys.Date() - 365, ...) {
@@ -30,40 +30,37 @@ make_ts <- function(data, platform, startDate = Sys.Date() - 365, ...) {
   mat <- prepare(ps, 'NESREANigeria')
   begYr <- .numericalDateElem(startDate, '%Y')
   begMth <- .numericalDateElem(startDate, '%m')
-  tso <- ts(data = mat,
-            start = c(begYr, begMth),
-            frequency = 12L)
-  .drawTimeSeries(tso, specs = ps)
+  z <- zoo(mat, startDate + 1:365)
+  .drawTimeSeries(z, specs = ps)
 }
 
 
 
 #' @importFrom graphics plot
 #' @importFrom stats window
-.drawTimeSeries <- function(tsObj, base = TRUE, specs, ...)
+.drawTimeSeries <- function(zObj, base = TRUE, specs, ...)
 {
   stopifnot(exprs = {
-    inherits(tsObj, 'ts')
+    inherits(zObj, 'zoo')
     is.logical(base)
     inherits(specs, 'platformSpecs')
   })
   if (base) {
     colour <- specs$colour
     legend <- 'All updates'
-    if (is.matrix(tsObj) && ncol(tsObj) == 2) {
+    if (is.matrix(zObj) && ncol(zObj) == 2) {
       colour <- c(colour, 'red')
       legend <- c(legend, 'NESREA')
     }
     plot(
-      tsObj,
+      zObj,
       plot.type = 'single',
       col = colour,
       lwd = 2,
       main = specs$title.stub,
       ylab = 'Posts',
-      ylim = c(0, max(tsObj) + 2)
+      ylim = c(0, max(zObj) + 2)
     )
-    legend('topright', legend = legend, fill = colour)
   }
   else {
     message("Other plotting formats not yet implemented")
