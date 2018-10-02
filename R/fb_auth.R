@@ -108,6 +108,9 @@ fbTokenObj <- function(app_id, app_secret)
 #' date the expected expiry date as determined by the exisiting Facebook
 #' policy for access tokens.
 #'
+#' @examples
+#' inherits(token_expiry(), 'Date')
+#'
 #' @export
 token_expiry <- function()
 {

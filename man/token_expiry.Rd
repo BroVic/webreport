@@ -14,3 +14,7 @@ The S3 object \code{fbTokenObj} has a member that represents the
 date the expected expiry date as determined by the exisiting Facebook
 policy for access tokens.
 }
+\examples{
+inherits(token_expiry(), 'Date')
+
+}
