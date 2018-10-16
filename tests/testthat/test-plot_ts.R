@@ -48,6 +48,7 @@ test_that('input is validated', {
     fixed = TRUE
   )
 })
+
 test_that('platform specific variables are set', {
   expect_error(platformSpecs(),
                'argument "DATA" is missing, with no default')
@@ -83,6 +84,7 @@ test_that('platform specific variables are set', {
   expect_equal(ncol(df), 16L)
   expect_true(nrow(df) > 0)
 })
+
 test_that('numerical values for date elements are correctly computed', {
   expect_error(.numericalDateElem(),
                'argument "placeholder" is missing')
@@ -100,6 +102,7 @@ test_that('numerical values for date elements are correctly computed', {
                'inherits(date, "Date") is not TRUE',
                fixed = TRUE)
 })
+
 test_that('Numerical date values are in order', {
   expect_type(yr, 'double')
   expect_type(mth, 'double')
@@ -108,6 +111,7 @@ test_that('Numerical date values are in order', {
   expect_equal(yr, as.numeric(format(begDate, '%Y')))
   expect_equal(mth, as.numeric(format(begDate, '%m')))
 })
+
 test_that('Time series object is successfully created', {
   expect_error(prepare(specs = result))
   expect_error(prepare(sender = 'ecomsaoauife'))
@@ -119,26 +123,13 @@ test_that('Time series object is successfully created', {
   ## Success test cases
   expect_type(dmatrix, 'integer')
   expect_is(dmatrix, 'matrix')
-  # expect_equal(dim(dmatrix)[2], 2L)
-  # expect_identical(colnames(dmatrix), c('allUpdates', 'bySender'))
 })
+
 test_that('Input for time-series plotting is validated', {
-  expect_message(
-    .drawTimeSeries(tmsr, specs = result, base = FALSE),
-    'Other plotting formats not yet implemented')
   expect_error(.drawTimeSeries(1:10, specs = result),
                'inherits(zObj, "zoo") is not TRUE',
                fixed = TRUE)
   expect_error(.drawTimeSeries(tmsr, specs = list()),
                'inherits(specs, "platformSpecs") is not TRUE',
-               fixed = TRUE)
-  expect_error(.drawTimeSeries(tmsr, specs = result, base = ''),
-               'is.logical(base) is not TRUE',
-               fixed = TRUE)
-  expect_error(.drawTimeSeries(tmsr, specs = result, base = 42),
-               'is.logical(base) is not TRUE',
-               fixed = TRUE)
-  expect_error(.drawTimeSeries(tmsr, specs = result, base = NA),
-               'missing value where TRUE/FALSE needed',
                fixed = TRUE)
 })
