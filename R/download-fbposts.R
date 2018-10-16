@@ -20,11 +20,11 @@ download_fb <- function(keyword, dBase)
   else
     stop("There was a problem connecting to the database\n")
   cat("Downloading Page posts from the Newsfeed\n")
-  nesreaToken <- fetch_token()
-  nesreaToken <- nesreaToken$token
+  myToken <- fetch_token()
+  myToken <- myToken$token
   posts <-
     getPage(page = keyword,
-            nesreaToken,
+            myToken,
             n = 200,
             feed = TRUE)
   dbWriteTable(sql.conn, paste0(keyword, "_fbposts"), posts, overwrite = TRUE)

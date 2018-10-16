@@ -27,12 +27,12 @@ globalVariables(c("value", "end_time"))
 #   {
 #     NESREA_page_id <- use_pg_id()
 #     API_version <- get_api_version()
-#     nesreaToken <- fetch_token()
-#     nesreaToken <- nesreaToken$token
+#     myToken <- fetch_token()
+#     myToken <- myToken$token
 #     result <-
 #       getInsights(
 #         object_id = NESREA_page_id,
-#         token = nesreaToken,
+#         token = myToken,
 #         metric = type,
 #         version = API_version
 #       )
@@ -102,12 +102,12 @@ storePostDetails <- function(keyword, conn, data)
   len <- length(data$id)
   numPosts <- 5000
   PBar <- txtProgressBar(max = len, style = 3, char = "-")
-  nesreaToken <- fetch_token()
-  nesreaToken <- nesreaToken$token
+  myToken <- fetch_token()
+  myToken <- myToken$token
 
   for (i in 1:len) {
     ID <- data$id[i]
-    post_details <- getPost(post = ID, n = numPosts, token = nesreaToken)
+    post_details <- getPost(post = ID, n = numPosts, token = myToken)
     if (identical(length(post_details), numPosts))
       warning(sprintf(
         "You downloaded the maximum of %s posts.", numPosts))
