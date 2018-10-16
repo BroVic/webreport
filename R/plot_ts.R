@@ -35,39 +35,38 @@ make_ts <- function(data, platform, startDate = Sys.Date() - 365, ...) {
 }
 
 
-
+## Actually draws the time series plot.
+## Receives a time series object as well as the
+## characteristics applied to specific online platforms
+## The 'base' arguments was originally intended to
+## provide options for choosing between base and ggplot2
+## graphics. This arguments is currently unimplemented.
+#' @importFrom graphics lines
 #' @importFrom graphics plot
+#' @importFrom graphics points
 #' @importFrom stats window
-.drawTimeSeries <- function(zObj, base = TRUE, specs, ...)
+.drawTimeSeries <- function(zObj, specs, ...)
 {
   stopifnot(exprs = {
     inherits(zObj, 'zoo')
-    is.logical(base)
     inherits(specs, 'platformSpecs')
   })
-  if (base) {
-    colour <- specs$colour
-    legend <- 'All updates'
-    if (is.matrix(zObj) && ncol(zObj) == 2) {
-      colour <- c(colour, 'red')
-      legend <- c(legend, 'NESREA')
-    }
-    plot(
-      zObj,
-      plot.type = 'single',
-      col = colour,
-      lwd = 2,
-      main = specs$title.stub,
-      ylab = 'Posts',
-      ylim = c(0, max(zObj) + 2)
-    )
+  colour <- specs$colour
+  legend <- 'All updates'
+  if (is.matrix(zObj) && ncol(zObj) == 2) {
+    colour <- c(colour, 'red')
+    legend <- c(legend, 'NESREA')
   }
-  else {
-    message("Other plotting formats not yet implemented")
-    # print(ggplot(updates.by.wk, aes(week, n)) +
-    #         geom_line(colour = colour, size = pt) +
-    #         ggtitle(ps$title.stub))
-  }
+  plot(
+    zObj,
+    plot.type = 'single',
+    type = 'n',
+    main = specs$title.stub,
+    ylab = 'Posts',
+    ylim = c(0, max(zObj) + 5)
+  )
+  points(zObj, pch = 20, col = 'red')
+  lines(zObj, col = colour, lwd = 2)
 }
 
 
