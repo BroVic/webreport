@@ -43,7 +43,7 @@ fetch_token <- function()
 	      'renew_fb_cred()'
         else
           'Rscript -e "webreport::renew_fb_cred()"'
-      message("Run", txt, "to get a new one (Admin role required).")
+      message("Run ", txt, " to get a new one (Admins only)")
       return(NULL)
     }
     if (identical(val, 1L)) {
