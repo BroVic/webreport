@@ -1,28 +1,47 @@
 ## fb_auth.R
 ## Functions around the Facebook OAuth credentials.
-globalVariables("nesreaToken")
+globalVariables("myToken")
 
 
-use_pg_id <- function()
-{
-  "145175075891647"
-}
+FbCredentials <-
+  setRefClass(
+    'FbCredentials',
+    fields = list(
+      appId = 'character',
+      appSecret = 'character',
+      apiVersion = 'character',
+      pageId = 'character'
+    ),
+    methods = list(
+      set_appId = function() {
+        appId <<- '203440573439361'
+      },
+      set_appSecret = function() {
+        appSecret <<- "9957dccac2ebcef3fd0c79128edd47bd"
+      },
+      set_apiVersion = function() {
+        apiVersion <<- '2.8'
+      },
+      set_pageId = function() {
+        pageId <<- "145175075891647"
+      },
+      get_appId = function() {
+        as.character(appId)
+      },
+      get_appSecret = function() {
+        as.character(appSecret)
+      },
+      get_apiVersion = function(){
+        as.character(apiVersion)
+      },
+      get_pageId = function() {
+        as.character(pageId)
+      }
+    )
+  )
 
-
-
-
-
-
-
-get_api_version <- function()
-{
-  "2.8"
-}
-
-
-
-
-
+## Create an instance of the FbCredentials class
+cred <- new('FbCredentials')
 
 
 
@@ -30,29 +49,34 @@ get_api_version <- function()
 #' @importFrom utils menu
 fetch_token <- function()
 {
-  nesreaToken <- find_token("keys/NESREA_fboauth")
-  if (nesreaToken$expiryDate <= Sys.Date()) {
+  myToken <- findToken("keys/my_fboauth")
+  if (myToken$expiryDate <= Sys.Date()) {
+    fn <- quote(renew_fb_cred())
     val <- NULL
     if (interactive()) {
       val <- menu(choices = c("Yes", "No"),
                   title = "Renew Facebook access token?")
     }
     else {
+      fnStr <- deparse(fn)
+      txt <- if (interactive()) {
+        fnStr
+      }
+      else {
+        sprintf('Rscript -e "webreport::%s"\n', fnStr)
+      }
       message("Your Facebook access token has expired or is non-existent.")
-	  txt <- if (interactive())
-	      'renew_fb_cred()'
-        else
-          'Rscript -e "webreport::renew_fb_cred()"'
       message("Run ", txt, " to get a new one (Admins only)")
       return(NULL)
     }
+
     if (identical(val, 1L)) {
-      renew_fb_cred()
+      eval(fn)
     }
     else
       return(NULL)
   }
-  invisible(nesreaToken)
+  invisible(myToken)
 }
 
 
@@ -62,14 +86,14 @@ fetch_token <- function()
 
 
 ## Get location of previously stored token
-find_token <- function(key.loc = "keys/NESREA_fboauth")
+findToken <- function(key.loc = "keys/my_fboauth")
 {
   tkFile <- system.file(key.loc, package = "webreport")
   if (nchar(tkFile) > 0)
     load(tkFile)
   else
     message("Access token was not found.")
-  invisible(nesreaToken)
+  invisible(myToken)
 }
 
 
@@ -91,7 +115,8 @@ find_token <- function(key.loc = "keys/NESREA_fboauth")
 #' @importFrom utils browseURL
 fbTokenObj <- function(app_id, app_secret)
 {
-  browseURL('https://developers.facebook.com/apps/203440573439361/settings/basic/')
+  url <- 'https://developers.facebook.com/apps/203440573439361/settings/basic/'
+  browseURL(url)
   structure(
     list(token = fbOAuth(app_id, app_secret),
          expiryDate = Sys.Date() + 60),
@@ -114,8 +139,8 @@ fbTokenObj <- function(app_id, app_secret)
 #' @export
 token_expiry <- function()
 {
-  nesreaToken <- find_token()
-  nesreaToken$expiryDate
+  myToken <- findToken()
+  myToken$expiryDate
 }
 
 
@@ -140,9 +165,9 @@ token_expiry <- function()
 renew_fb_cred <- function() {
   if (token_expiry() > Sys.Date())
     stop("Token has not yet expired.")
-  nesreaToken <-
-    fbTokenObj(203440573439361, "9957dccac2ebcef3fd0c79128edd47bd")
+  myToken <-
+    fbTokenObj(cred$get_appId(), cred$get_appSecret())
   Sys.sleep(2)
-  save(nesreaToken,
-       file = system.file("keys/NESREA_fboauth", package = "webreport"))
+  save(myToken,
+       file = system.file("keys/my_fboauth", package = "webreport"))
 }
