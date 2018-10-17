@@ -6,6 +6,10 @@
 \usage{
 renew_fb_cred()
 }
+\value{
+\code{TRUE} if access token is successfully renewed and saved to disk.
+Otherwise, \code{FALSE} (including when token renewal is not due).
+}
 \description{
 Obtain a fresh Facebook access token upon expiry of the extant one
 }
@@ -16,8 +20,8 @@ involves copying and pasting a URL into the relevant field in the App's
 \code{\link[Rfacebook]{fbOAuth}}.
 }
 \note{
-The two credentials that are used to obtain the token (i.e. the App ID
-and the App secret) are specific to NESREA. Only users with access to the
-App's 'Settings' page at \url{https://developers.facebook.com/} can effect
-the renewal.
+Currently, the two credentials that are used to obtain the token
+(i.e. the App ID and the App Secret) are specific. Only users with
+administrative access to the App's 'Settings' page at
+\url{https://developers.facebook.com/} can effect the renewal.
 }
