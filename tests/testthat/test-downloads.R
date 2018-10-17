@@ -9,14 +9,19 @@ test_that("Facebook access token is accessible", {
   expect_s3_class(tk, "fbTokenObj")
 })
 
+context("Facebook token renewals")
+expiry <- token_expiry()
 test_that("Facebook access token expiry can be checked", {
-  expiry <- token_expiry()
-
   expect_type(expiry, "double")
   expect_is(expiry, "Date")
 })
 
-
+test_that("Facebook access token can be renewed", {
+  expect_type(renew_fb_cred(), 'logical')
+  if (expiry > Sys.Date()) {
+    expect_message(renew_fb_cred(), 'has not yet expired')
+  }
+})
 
 context("Data display")
 
