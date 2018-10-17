@@ -7,23 +7,20 @@ FbCredentials <-
   setRefClass(
     'FbCredentials',
     fields = list(
+      apiVersion = 'character',
       appId = 'character',
       appSecret = 'character',
-      apiVersion = 'character',
       pageId = 'character'
     ),
     methods = list(
-      set_appId = function() {
-        appId <<- '203440573439361'
+      set_appId = function(val) {
+        appId <<- val
       },
-      set_appSecret = function() {
-        appSecret <<- "9957dccac2ebcef3fd0c79128edd47bd"
+      set_appSecret = function(val) {
+        appSecret <<- val
       },
-      set_apiVersion = function() {
-        apiVersion <<- '2.8'
-      },
-      set_pageId = function() {
-        pageId <<- "145175075891647"
+      set_pageId = function(val) {
+        pageId <<- val
       },
       get_appId = function() {
         as.character(appId)
@@ -41,7 +38,12 @@ FbCredentials <-
   )
 
 ## Create an instance of the FbCredentials class
-cred <- new('FbCredentials')
+cred <-
+  FbCredentials(apiVersion = '2.8',
+                appId = '203440573439361',
+                appSecret = "9957dccac2ebcef3fd0c79128edd47bd",
+                pageId = "145175075891647")
+
 
 
 
@@ -156,18 +158,27 @@ token_expiry <- function()
 #' 'Settings' page. For more information on Facebook authentication see
 #' \code{\link[Rfacebook]{fbOAuth}}.
 #'
-#' @note The two credentials that are used to obtain the token (i.e. the App ID
-#' and the App secret) are specific to NESREA. Only users with access to the
-#' App's 'Settings' page at \url{https://developers.facebook.com/} can effect
-#' the renewal.
+#' @note Currently, the two credentials that are used to obtain the token
+#' (i.e. the App ID and the App Secret) are specific. Only users with
+#' administrative access to the App's 'Settings' page at
+#' \url{https://developers.facebook.com/} can effect the renewal.
+#'
+#' @return \code{TRUE} if access token is successfully renewed and saved to disk.
+#' Otherwise, \code{FALSE} (including when token renewal is not due).
 #'
 #' @export
 renew_fb_cred <- function() {
-  if (token_expiry() > Sys.Date())
-    stop("Token has not yet expired.")
+  appId <- cred$get_appId()
+  if (token_expiry() > Sys.Date()) {
+    message("Token for App ID ", sQuote(appId), " has not yet expired.")
+    invisible(return(FALSE))
+  }
   myToken <-
-    fbTokenObj(cred$get_appId(), cred$get_appSecret())
+    fbTokenObj(appId, cred$get_appSecret())
   Sys.sleep(2)
-  save(myToken,
+  try({
+    save(myToken,   # TODO: Use saveRDS() instead.
        file = system.file("keys/my_fboauth", package = "webreport"))
+  })
+  invisible(TRUE)
 }
